@@ -50,7 +50,7 @@ def getGrammar(fileName):
         rules.append("%s -> %s" % (var, ' | '.join(temp_ter)))
         temp_ter = []
 
-    result_grammar = ['Gramatica dada', 'Terminais: ' + ', '.join(grammar.terminals),
+    result_grammar = ['Gramatica extraida do arquivo ' + fileName, 'Terminais: ' + ', '.join(grammar.terminals),
                       'Variaveis: ' + ', '.join(grammar.variables), 'Simbolo inicial: ' + ' '.join(grammar.initial_var),
                       'Regras: {' + ',\n'.join(rules) + '}']
-    return '\n'.join(result_grammar)
+    return '\n\n'.join(result_grammar)
