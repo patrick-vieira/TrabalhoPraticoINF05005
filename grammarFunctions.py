@@ -149,6 +149,7 @@ def cleanV(grammar):  # terceiro passo da etapa de simplificacao da gramatica - 
                 ter.remove(item)
         if ''.join(grammar.initial_var) == var and grammar.empty_word[var]:
             grammar.rules[var].append(list("V"))
+            grammar.excepts_empty = 1
 
 
 def varClosure(grammar): # etapa de simplificacao da gramatica - producoes simples
