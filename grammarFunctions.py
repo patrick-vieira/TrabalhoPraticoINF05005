@@ -151,9 +151,11 @@ def cleanV(grammar): #terceiro passo da etapa de simplificacao da gramatica - pr
 
 def varClosure(grammar):
     for var, ter in grammar.rules.items():
-        for item in ter:
-            if ''.join(item) in grammar.variables:
-                ter.remove(item)
-        for item in ter:
-            if ''.join(item) in grammar.variables:
-                ter.remove(item)
+        number_of_rules = len(ter)
+        i = 0
+        while i <= number_of_rules:
+            for item in ter:
+                i += 1
+                if ''.join(item) in grammar.variables:
+                    print(item)
+                    ter.remove(item)
