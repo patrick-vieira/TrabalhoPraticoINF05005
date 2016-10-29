@@ -19,7 +19,7 @@ while exit_prog != 1:
         if choice == 'Escolher arquivo':
             fileName = fileopenbox("Nome do arquivo de gramática:", title, "*.txt")
 
-        textbox("Resultado da simplificação da gramática", title, gram.getGrammar(fileName))
+        textbox("Resultado da simplificação da gramática", title, gram.simplifyAndChomsky(fileName))
 
     elif choice == 'Earley Parser':
         msgbox('Ainda não tem, mas vai')
