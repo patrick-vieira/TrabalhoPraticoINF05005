@@ -62,7 +62,7 @@ def getGrammar(fileName):
         print("\n\n\n")
 
     else:
-        printFinal.append("(1) Exclusão de Produções Vazias \n\n não existem palavras vazias \n nessa gramatica")
+        printFinal.append("(1) Exclusão de Produções Vazias \n\n Não existem produções vazias na gramatica")
 
     varClosure(grammar)
 
