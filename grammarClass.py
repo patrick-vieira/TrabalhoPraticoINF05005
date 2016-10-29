@@ -7,3 +7,4 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
     empty_word = {}
     useless_symbol = {}
     excepts_empty = 0
+    has_empty = 0

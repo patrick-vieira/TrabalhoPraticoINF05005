@@ -1,21 +1,16 @@
 import re
 import grammarClass
 
-
 def getGrammar(fileName):
     with open(fileName) as f:
         lines = f.read()
 
     file_split = re.split(r"#Terminais|#Variaveis|#Inicial|#Regras", lines)
-
     file_rules = re.split(r" > |\n", file_split[4])
-
     exp = r"\[ ([^]]*) \]"
-
     grammar = grammarClass.Grammar()
 
     for index, line in enumerate(file_split):
-
         if index == 1:
             searchObj = re.findall(exp, line)
             if searchObj:
@@ -45,50 +40,72 @@ def getGrammar(fileName):
                     if searchObj2:
                         grammar.rules[''.join(searchObj)].append(searchObj2)
                         if 'V' in searchObj2:
+                            grammar.has_empty = 1
                             grammar.empty_word[''.join(searchObj)] = 1
 
     printFinal = []
-
     printFinal.append(printGrammar(grammar, 'Gramática extraída do arquivo ' + fileName))
+    if grammar.has_empty:
+        goToV(grammar)
+        changeGrammar(grammar)
+        cleanV(grammar)
 
-    goToV(grammar)
-    changeGrammar(grammar)
-    cleanV(grammar)
+        printFinal.append("\n" + printGrammar(grammar, "(1) Exclusão de Produções Vazias"))
 
-    printFinal.append("\n" + printGrammar(grammar, "(1) Exclusão de Produções Vazias"))
+        print("\n\n\n")
+        print("Terminais: %s" % grammar.terminals)
+        print("Variaveis: %s" % grammar.variables)
+        print("Simbolo inicial: %s" % grammar.initial_var)
+        print("Regras: ")
+        for var, ter in grammar.rules.items():
+            print("%s -> %s" % (var, ter))
+        print("\n\n\n")
 
-    print("\n\n\n")
-
-    print("Terminais: %s" % grammar.terminals)
-    print("Variaveis: %s" % grammar.variables)
-    print("Simbolo inicial: %s" % grammar.initial_var)
-    print("Regras: ")
-    for var, ter in grammar.rules.items():
-        print("%s -> %s" % (var, ter))
-
-    for var, ter in grammar.empty_word.items():
-        print("%s -> %d" % (var, ter))
-
-    print("\n\n\n")
+    else:
+        printFinal.append("(1) Exclusão de Produções Vazias \n\n não existem palavras vazias \n nessa gramatica")
 
     varClosure(grammar)
 
     printFinal.append("\n" + printGrammar(grammar, "(2) Exclusão de Produções Simples"))
 
     print("\n\n\n")
-
     print("Terminais: %s" % grammar.terminals)
     print("Variaveis: %s" % grammar.variables)
     print("Simbolo inicial: %s" % grammar.initial_var)
     print("Regras: ")
     for var, ter in grammar.rules.items():
         print("%s -> %s" % (var, ter))
-
     print("\n\n\n")
 
     uslessSymbol(grammar)
 
     printFinal.append("\n" + printGrammar(grammar, "(3) Exclusão de Produções Inuteis"))
+
+    print("\n\n\n")
+    print("Terminais: %s" % grammar.terminals)
+    print("Variaveis: %s" % grammar.variables)
+    print("Simbolo inicial: %s" % grammar.initial_var)
+    print("Regras: ")
+    for var, ter in grammar.rules.items():
+        print("%s -> %s" % (var, ter))
+    print("\n\n\n")
+
+    chomsky(grammar)
+
+    print("\n\n\n")
+    print("Terminais: %s" % grammar.terminals)
+    print("Variaveis: %s" % grammar.variables)
+    print("Simbolo inicial: %s" % grammar.initial_var)
+    print("Regras: ")
+    for var, ter in grammar.rules.items():
+        print("%s -> %s" % (var, ter))
+    print("\n\n\n")
+
+    printFinal.append("\n" + printGrammar(grammar, "Chomsky - Parte 1"))
+
+    chomskyPart2(grammar)
+
+    printFinal.append("\n" + printGrammar(grammar, "Chomsky - Parte 2"))
 
     return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
@@ -97,14 +114,15 @@ def printGrammar(grammar, subTitle):
     rules = []
     temp_ter = []
 
-    for var, ter in grammar.rules.items():
-        for t in ter:
+    for var, ter in sorted(grammar.rules.items()):
+        for t in sorted(ter):
             temp_ter.append(''.join(t))
         rules.append("%s -> %s" % (var, ' | '.join(temp_ter)))
         temp_ter = []
 
-    result_grammar = [subTitle, 'Terminais: ' + ', '.join(grammar.terminals),
-                      'Variaveis: ' + ', '.join(grammar.variables), 'Simbolo inicial: ' + ' '.join(grammar.initial_var),
+    result_grammar = [subTitle, 'Terminais: ' + ', '.join(sorted(grammar.terminals)),
+                      'Variaveis: ' + ', '.join(sorted(grammar.variables)),
+                      'Simbolo inicial: ' + ' '.join(grammar.initial_var),
                       'Regras: {' + ',\n'.join(rules) + '}']
     return '\n\n'.join(result_grammar)
 
@@ -170,7 +188,7 @@ def varClosure(grammar): # etapa de simplificacao da gramatica - producoes simpl
                             if x not in grammar.rules[var] and x != ''.join(item):
                                 grammar.rules[var].append(x)
 
-def uslessSymbol(grammar):
+def uslessSymbol(grammar): # etapa de simplificacao da gramatica - producoes inuteis
     for var, ter in grammar.rules.items():
         for item in ter:
             for x in item:
@@ -189,7 +207,52 @@ def uslessSymbol(grammar):
             for x in item:
                 grammar.useless_symbol[x] = 0
 
-
     for var, numb in grammar.useless_symbol.items():
         if var in grammar.terminals and numb:
             grammar.terminals.remove(var)
+
+def chomsky(grammar): # forma normal de chomsky - separacao, cada terminal recebe uma variavel
+    for x in grammar.terminals:
+        new_ter = []
+        new_ter.append(x)
+        grammar.rules['T' + ''.join(x)] = []
+        grammar.rules['T' + ''.join(x)].append(new_ter)
+        grammar.variables.append('T' + ''.join(x))
+
+    for var, ter in grammar.rules.items():
+        for num, item in enumerate(ter):
+            new_item = []
+            for x in item:
+                if x in grammar.terminals and var != ''.join('T' + ''.join(x)):
+                    new_item.append('T' + ''.join(x))
+                else:
+                    new_item.append(x)
+
+            ter[num] = new_item
+
+def chomskyPart2(grammar):
+    count = 1 # contador de novas variaveis
+    new_vars = []
+    numb_vars = 0
+    while numb_vars != len(grammar.variables):
+        numb_vars = len(grammar.variables)
+        for var in grammar.variables:
+            ter = grammar.rules[var]
+            for num, item in enumerate(ter):
+                new_item = []
+                if len(item) > 2:
+                    print("Item %s da var %s tem %d itens" %(''.join(item), var, len(item)))
+                    new_vars.append(''.join('V' + str(count)))
+                    new_item = [item[0], ''.join('V' + str(count))]
+                    grammar.variables.append(''.join('V' + str(count)))
+                    grammar.rules[''.join('V' + str(count))] = []
+                    grammar.rules[''.join('V' + str(count))].append(item[1:])
+                    count += 1
+
+                else:
+                    new_item = item
+
+                ter[num] = new_item
+        print(new_vars)
+        grammar.variables = grammar.variables + new_vars
+        new_vars = []
