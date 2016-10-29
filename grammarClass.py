@@ -68,6 +68,7 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
                         if searchObj2:
                             Grammar.rules[''.join(searchObj)].append(searchObj2)
                             if 'V' in searchObj2:
+                                print("Grammar.rules[%s].append(%s)" %(''.join(searchObj), searchObj2))
                                 Grammar.has_empty = 1
                                 Grammar.empty_word[''.join(searchObj)] = 1
 
@@ -97,20 +98,16 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
         for var, ter in Grammar.rules.items():
             for item in ter:
                 rules_count = 0
-                rules_not_count = 0
                 for x in item:
-                    if x in Grammar.variables:
-                        rules_not_count += 1
-                        if rules_count == len(item) - rules_not_count:
-                            Grammar.empty_word[var] = 1
-                    elif Grammar.empty_word[var]:
-                        rules_count += 1
-                        if rules_count == len(item) - rules_not_count:
-                            Grammar.empty_word[var] = 1
+                    if x in Grammar.variables and Grammar.empty_word[x]:
+                        rules_count +=1
+                if rules_count == len(item):
+                    Grammar.empty_word[var] = 1
 
     @staticmethod
     def changeGrammar():  # segundo passo da etapa de simplificacao da gramatica - producoes vazias
         for var, ter in Grammar.rules.items():
+            print(Grammar.empty_word)
             if Grammar.empty_word[var]:
                 for item in Grammar.rules[var]:
                     for x in item:
@@ -210,11 +207,9 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
                         Grammar.rules[''.join('V' + str(count))] = []
                         Grammar.rules[''.join('V' + str(count))].append(item[1:])
                         count += 1
-
                     else:
                         new_item = item
 
                     ter[num] = new_item
             print(new_vars)
-            Grammar.variables = Grammar.variables + new_vars
             new_vars = []

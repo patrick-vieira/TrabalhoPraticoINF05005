@@ -1,8 +1,8 @@
-import grammarClass as gm
+import grammarClass
 
 def simplifyAndChomsky(fileName):
 
-    grammar = gm.Grammar
+    grammar = grammarClass.Grammar
     printFinal = []
 
     with open(fileName) as f:
