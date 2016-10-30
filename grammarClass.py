@@ -98,25 +98,35 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
         for var, ter in Grammar.rules.items():
             for item in ter:
                 rules_count = 0
+                #rules_not_count = 0
                 for x in item:
                     if x in Grammar.variables and Grammar.empty_word[x]:
                         rules_count +=1
                 if rules_count == len(item):
                     Grammar.empty_word[var] = 1
 
+                #     if x in Grammar.variables:
+                #         rules_not_count += 1
+                #         if rules_count == len(item) - rules_not_count:
+                #             Grammar.empty_word[var] = 1
+                #         elif Grammar.empty_word[var]:
+                #             rules_count += 1
+                #         if rules_count == len(item) - rules_not_count:
+                #             Grammar.empty_word[var] = 1
+
     @staticmethod
     def changeGrammar():  # segundo passo da etapa de simplificacao da gramatica - producoes vazias
         for var, ter in Grammar.rules.items():
-            print(Grammar.empty_word)
-            if Grammar.empty_word[var]:
-                for item in Grammar.rules[var]:
-                    for x in item:
-                        if x in Grammar.variables:
-                            if Grammar.empty_word[x]:
-                                aux = list(item)
-                                aux.remove(x)
-                                if aux and aux not in Grammar.rules[var]:
-                                    Grammar.rules[var].append(aux)
+            print("EITAAAAAAAAAA: %s" %Grammar.empty_word)
+            #if Grammar.empty_word[var]:
+            for item in Grammar.rules[var]:
+                for x in item:
+                    if x in Grammar.variables:
+                        if Grammar.empty_word[x]:
+                            aux = list(item)
+                            aux.remove(x)
+                            if aux and aux not in Grammar.rules[var]:
+                                Grammar.rules[var].append(aux)
 
     @staticmethod
     def cleanV():  # terceiro passo da etapa de simplificacao da gramatica - producoes vazias
@@ -124,6 +134,7 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
             for item in ter:
                 if 'V' in item:
                     ter.remove(item)
+                    print ("churros")
             if ''.join(Grammar.initial_var) == var and Grammar.empty_word[var]:
                 Grammar.rules[var].append(list("V"))
                 Grammar.accepts_empty = 1
@@ -146,6 +157,22 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
 
     @staticmethod
     def uslessSymbol():  # etapa de simplificacao da gramatica - producoes inuteis
+
+        for x in Grammar.variables:
+            ter = Grammar.rules[x]
+            aux = []
+            if not ter:
+                print("YAAAAAAAAAY")
+                Grammar.useless_symbol[x] = 1
+                Grammar.rules.pop(x)
+                Grammar.variables.remove(x)
+                for var,ter in Grammar.rules.items():
+                    for item in ter:
+                        for i in item:
+                            if x == i:
+                                item.remove(x)
+
+
         for var, ter in Grammar.rules.items():
             for item in ter:
                 for x in item:

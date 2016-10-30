@@ -11,24 +11,23 @@ def simplifyAndChomsky(fileName):
     if lines:
         grammar.getGrammar(lines)
         printFinal.append(grammar.printGrammar('Gramática extraída do arquivo ' + fileName))
-        if grammar.has_empty:
-            grammar.goToV()
-            grammar.changeGrammar()
-            grammar.cleanV()
 
-            printFinal.append("\n" + grammar.printGrammar("(1) Exclusão de Produções Vazias"))
+        grammar.goToV()
+        grammar.changeGrammar()
+        grammar.cleanV()
 
-            print("\n\n\n")
-            print("Terminais: %s" % grammar.terminals)
-            print("Variaveis: %s" % grammar.variables)
-            print("Simbolo inicial: %s" % grammar.initial_var)
-            print("Regras: ")
-            for var, ter in grammar.rules.items():
-                print("%s -> %s" % (var, ter))
-            print("\n\n\n")
+        printFinal.append("\n" + grammar.printGrammar("(1) Exclusão de Produções Vazias"))
 
-        else:
-            printFinal.append("(1) Exclusão de Produções Vazias \n\n Não existem produções vazias na gramatica")
+        print("\n\n\n")
+        print("Terminais: %s" % grammar.terminals)
+        print("Variaveis: %s" % grammar.variables)
+        print("Simbolo inicial: %s" % grammar.initial_var)
+        print("Regras: ")
+        for var, ter in grammar.rules.items():
+            print("%s -> %s" % (var, ter))
+        print("\n\n\n")
+
+        # printFinal.append("(1) Exclusão de Produções Vazias \n\n Não existem produções vazias na gramatica")
 
         grammar.varClosure()
 
