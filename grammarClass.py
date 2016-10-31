@@ -1,17 +1,10 @@
+import copy
 import re
+
 
 class Grammar:  # Grammar: salva variaveis, terminais e regras
 
-    terminals = []
-    variables = []
-    initial_var = []
-    rules = {}
-    empty_word = {}
-    useless_symbol = {}
-    accepts_empty = 0
-    has_empty = 0
-
-    def __init__(self):
+    def __init__(self, linhas):
         self.terminals = []
         self.variables = []
         self.initial_var = []
@@ -21,43 +14,48 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
         self.accepts_empty = 0
         self.has_empty = 0
 
-    @staticmethod
-    def clean():
-        Grammar.terminals = []
-        Grammar.variables = []
-        Grammar.initial_var = []
-        Grammar.rules = {}
-        Grammar.empty_word = {}
-        Grammar.useless_symbol = {}
-        Grammar.accepts_empty = 0
-        Grammar.has_empty = 0
+        self.read_grammar(linhas)
 
-    @staticmethod
-    def getGrammar(lines):
+    def __str__(self):
+        rules = []
+        temp_ter = []
+
+        for var, ter in sorted(self.rules.items()):
+            for t in sorted(ter):
+                temp_ter.append(''.join(t))
+            rules.append("%s -> %s" % (var, ' | '.join(temp_ter)))
+            temp_ter = []
+
+        result_Grammar = ['Terminais: ' + ', '.join(sorted(self.terminals)),
+                          'Variaveis: ' + ', '.join(sorted(self.variables)),
+                          'Simbolo inicial: ' + ' '.join(self.initial_var),
+                          'Regras: {' + ',\n'.join(rules) + '}']
+
+        return '\n\n'.join(result_Grammar)
+
+    def read_grammar(self, lines):
         file_split = re.split(r"#Terminais|#Variaveis|#Inicial|#Regras", lines)
         file_rules = re.split(r" > |\n", file_split[4])
         exp = r"\[ ([^]]*) \]"
-
         for index, line in enumerate(file_split):
             if index == 1:
                 searchObj = re.findall(exp, line)
                 if searchObj:
-                    Grammar.terminals = searchObj
-
+                    self.terminals = searchObj
             elif index == 2:
                 searchObj = re.findall(exp, line)
                 if searchObj:
-                    Grammar.variables = searchObj
+                    self.variables = searchObj
                     for x in searchObj:
-                        Grammar.rules[x] = []
-                        Grammar.empty_word[x] = 0
-                        Grammar.useless_symbol[x] = 1
+                        self.rules[x] = []
+                        self.empty_word[x] = 0
+                        self.useless_symbol[x] = 1
 
             elif index == 3:
                 searchObj = re.findall(exp, line)
                 if searchObj:
-                    Grammar.initial_var = searchObj
-                    Grammar.useless_symbol[''.join(searchObj)] = 0
+                    self.initial_var = searchObj
+                    self.useless_symbol[''.join(searchObj)] = 0
 
             elif index == 4:
                 for index, l in enumerate(file_rules):
@@ -66,173 +64,134 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
                     else:
                         searchObj2 = re.findall(exp, l)
                         if searchObj2:
-                            Grammar.rules[''.join(searchObj)].append(searchObj2)
+                            self.rules[''.join(searchObj)].append(searchObj2)
                             if 'V' in searchObj2:
-                                print("Grammar.rules[%s].append(%s)" %(''.join(searchObj), searchObj2))
-                                Grammar.has_empty = 1
-                                Grammar.empty_word[''.join(searchObj)] = 1
+                                print("Grammar.rules[%s].append(%s)" % (''.join(searchObj), searchObj2))
+                                self.has_empty = 1
+                                self.empty_word[''.join(searchObj)] = 1
 
-
-        return Grammar
-
-    @staticmethod
-    def printGrammar(subTitle):
-        rules = []
-        temp_ter = []
-
-        for var, ter in sorted(Grammar.rules.items()):
-            for t in sorted(ter):
-                temp_ter.append(''.join(t))
-            rules.append("%s -> %s" % (var, ' | '.join(temp_ter)))
-            temp_ter = []
-
-        result_Grammar = [subTitle, 'Terminais: ' + ', '.join(sorted(Grammar.terminals)),
-                          'Variaveis: ' + ', '.join(sorted(Grammar.variables)),
-                          'Simbolo inicial: ' + ' '.join(Grammar.initial_var),
-                          'Regras: {' + ',\n'.join(rules) + '}']
-        
-        return '\n\n'.join(result_Grammar)
-
-    @staticmethod
-    def goToV():  # primeiro passo da etapa de simplificacao da gramatica - producoes vazias
-        for var, ter in Grammar.rules.items():
+    def simplificacao_stp1_prod_vazias(self):
+        for var, ter in self.rules.items():
             for item in ter:
                 rules_count = 0
-                #rules_not_count = 0
                 for x in item:
-                    if x in Grammar.variables and Grammar.empty_word[x]:
-                        rules_count +=1
+                    if x in self.variables and self.empty_word[x]:
+                        rules_count += 1
                 if rules_count == len(item):
-                    Grammar.empty_word[var] = 1
+                    self.empty_word[var] = 1
 
-                #     if x in Grammar.variables:
-                #         rules_not_count += 1
-                #         if rules_count == len(item) - rules_not_count:
-                #             Grammar.empty_word[var] = 1
-                #         elif Grammar.empty_word[var]:
-                #             rules_count += 1
-                #         if rules_count == len(item) - rules_not_count:
-                #             Grammar.empty_word[var] = 1
-
-    @staticmethod
-    def changeGrammar():  # segundo passo da etapa de simplificacao da gramatica - producoes vazias
-        for var, ter in Grammar.rules.items():
-            print("EITAAAAAAAAAA: %s" %Grammar.empty_word)
-            #if Grammar.empty_word[var]:
-            for item in Grammar.rules[var]:
+    def simplificacao_stp2_prod_vazias(self):
+        for var, ter in self.rules.items():
+            print("EITAAAAAAAAAA: %s" % self.empty_word)
+            for item in self.rules[var]:
                 for x in item:
-                    if x in Grammar.variables:
-                        if Grammar.empty_word[x]:
+                    if x in self.variables:
+                        if self.empty_word[x]:
                             aux = list(item)
                             aux.remove(x)
-                            if aux and aux not in Grammar.rules[var]:
-                                Grammar.rules[var].append(aux)
+                            if aux and aux not in self.rules[var]:
+                                self.rules[var].append(aux)
 
-    @staticmethod
-    def cleanV():  # terceiro passo da etapa de simplificacao da gramatica - producoes vazias
-        for var, ter in Grammar.rules.items():
+    def simplificacao_stp3_prod_vazias(self):
+        for var, ter in self.rules.items():
             for item in ter:
                 if 'V' in item:
                     ter.remove(item)
-                    print ("churros")
-            if ''.join(Grammar.initial_var) == var and Grammar.empty_word[var]:
-                Grammar.rules[var].append(list("V"))
-                Grammar.accepts_empty = 1
+                    print("churros")
+            if ''.join(self.initial_var) == var and self.empty_word[var]:
+                self.rules[var].append(list("V"))
+                self.accepts_empty = 1
 
-    @staticmethod
-    def varClosure():  # etapa de simplificacao da gramatica - producoes simples
-        for var, ter in Grammar.rules.items():
+    def simplificacao_stp4_exclusao_prod_simples(self):
+        for var, ter in self.rules.items():
             print("VARIAVEL ATUAL: %s" % var)
             i = 0
             while i != len(ter):
                 i = len(ter)
                 for item in ter:
-                    print("ITEM ATUAL: %s" %item)
-                    if ''.join(item) in Grammar.variables:
-                        print(Grammar.variables)
+                    print("ITEM ATUAL: %s" % item)
+                    if ''.join(item) in self.variables:
+                        print(self.variables)
                         ter.remove(item)
-                        for x in Grammar.rules[''.join(item)]:
-                            if x not in Grammar.rules[var] and x != ''.join(item):
-                                Grammar.rules[var].append(x)
+                        for x in self.rules[''.join(item)]:
+                            if x not in self.rules[var] and x != ''.join(item):
+                                self.rules[var].append(x)
 
-    @staticmethod
-    def uslessSymbol():  # etapa de simplificacao da gramatica - producoes inuteis
+    def simplificacao_stp5_exclusao_prod_inuteis(self):
 
-        for x in Grammar.variables:
-            ter = Grammar.rules[x]
-            aux = []
+        for x in self.variables:
+            ter = self.rules[x]
             if not ter:
                 print("YAAAAAAAAAY")
-                Grammar.useless_symbol[x] = 1
-                Grammar.rules.pop(x)
-                Grammar.variables.remove(x)
-                for var,ter in Grammar.rules.items():
+                self.useless_symbol[x] = 1
+                self.rules.pop(x)
+                self.variables.remove(x)
+                for var, ter in self.rules.items():
                     for item in ter:
                         for i in item:
                             if x == i:
                                 item.remove(x)
 
-
-        for var, ter in Grammar.rules.items():
+        for var, ter in self.rules.items():
             for item in ter:
                 for x in item:
-                    Grammar.useless_symbol[x] = 0
+                    self.useless_symbol[x] = 0
 
-        for var, numb in Grammar.useless_symbol.items():
-            if var in Grammar.variables and numb:
-                for x in Grammar.rules[var]:
+        for var, numb in self.useless_symbol.items():
+            if var in self.variables and numb:
+                for x in self.rules[var]:
                     for i in x:
-                        Grammar.useless_symbol[i] = 1
-                Grammar.variables.remove(var)
-                del Grammar.rules[var]
+                        self.useless_symbol[i] = 1
+                self.variables.remove(var)
+                del self.rules[var]
 
-        for var, ter in Grammar.rules.items():
+        for var, ter in self.rules.items():
             for item in ter:
                 for x in item:
-                    Grammar.useless_symbol[x] = 0
+                    self.useless_symbol[x] = 0
 
-        for var, numb in Grammar.useless_symbol.items():
-            if var in Grammar.terminals and numb:
-                Grammar.terminals.remove(var)
+        for var, numb in self.useless_symbol.items():
+            if var in self.terminals and numb:
+                self.terminals.remove(var)
 
-    @staticmethod
-    def chomsky():  # forma normal de chomsky - separacao, cada terminal recebe uma variavel
-        for x in Grammar.terminals:
-            new_ter = []
-            new_ter.append(x)
-            Grammar.rules['T' + ''.join(x)] = []
-            Grammar.rules['T' + ''.join(x)].append(new_ter)
-            Grammar.variables.append('T' + ''.join(x))
+    def chomsky_stp1_separacao(self):  # forma normal de chomsky - separacao, cada terminal recebe uma variavel
+        if self.accepts_empty:
+            return "Forma normal de Chomsky \n\n A gramática aceita palavra vazia."
 
-        for var, ter in Grammar.rules.items():
+        for x in self.terminals:
+            new_ter = [x]
+            self.rules['T' + ''.join(x)] = []
+            self.rules['T' + ''.join(x)].append(new_ter)
+            self.variables.append('T' + ''.join(x))
+
+        for var, ter in self.rules.items():
             for num, item in enumerate(ter):
                 new_item = []
                 for x in item:
-                    if x in Grammar.terminals and var != ''.join('T' + ''.join(x)):
+                    if x in self.terminals and var != ''.join('T' + ''.join(x)):
                         new_item.append('T' + ''.join(x))
                     else:
                         new_item.append(x)
-
                 ter[num] = new_item
 
-    @staticmethod
-    def chomskyPart2():
+    def chomsky_stp2_novas_variaveis(self):
         count = 1  # contador de novas variaveis
         new_vars = []
         numb_vars = 0
-        while numb_vars != len(Grammar.variables):
-            numb_vars = len(Grammar.variables)
-            for var in Grammar.variables:
-                ter = Grammar.rules[var]
+
+        while numb_vars != len(self.variables):
+            numb_vars = len(self.variables)
+            for var in self.variables:
+                ter = self.rules[var]
                 for num, item in enumerate(ter):
                     new_item = []
                     if len(item) > 2:
                         print("Item %s da var %s tem %d itens" % (''.join(item), var, len(item)))
                         new_vars.append(''.join('V' + str(count)))
                         new_item = [item[0], ''.join('V' + str(count))]
-                        Grammar.variables.append(''.join('V' + str(count)))
-                        Grammar.rules[''.join('V' + str(count))] = []
-                        Grammar.rules[''.join('V' + str(count))].append(item[1:])
+                        self.variables.append(''.join('V' + str(count)))
+                        self.rules[''.join('V' + str(count))] = []
+                        self.rules[''.join('V' + str(count))].append(item[1:])
                         count += 1
                     else:
                         new_item = item
@@ -240,3 +199,16 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
                     ter[num] = new_item
             print(new_vars)
             new_vars = []
+
+    def to_chomsky(self):
+        temp = copy.deepcopy(self)
+        temp.chomsky_stp1_separacao()
+        temp.chomsky_stp2_novas_variaveis()
+        return temp
+
+    def simplificar(self):
+        temp = copy.deepcopy(self)
+        temp.simplificacao_stp1_prod_vazias()
+        temp.simplificacao_stp2_prod_vazias()
+        temp.simplificacao_stp3_prod_vazias()
+        return temp

@@ -1,84 +1,45 @@
+import copy
+
 import grammarClass
 
-def simplifyAndChomsky(fileName):
 
-    grammar = grammarClass.Grammar
+def simplifyAndChomsky(fileName):
     printFinal = []
 
     with open(fileName) as f:
         lines = f.read()
 
     if lines:
-        grammar.getGrammar(lines)
-        printFinal.append(grammar.printGrammar('Gramática extraída do arquivo ' + fileName))
 
-        grammar.goToV()
-        grammar.changeGrammar()
-        grammar.cleanV()
+        grammar = grammarClass.Grammar(lines)
+        printFinal.append('Gramática extraída do arquivo ' + fileName)
+        printFinal.append(str(grammar))
 
-        printFinal.append("\n" + grammar.printGrammar("(1) Exclusão de Produções Vazias"))
+        gramatica_simplificada = grammar.simplificar()
+        printFinal.append("(1) Exclusão de Produções Vazias")
+        printFinal.append("\n" + str(gramatica_simplificada))
 
-        print("\n\n\n")
-        print("Terminais: %s" % grammar.terminals)
-        print("Variaveis: %s" % grammar.variables)
-        print("Simbolo inicial: %s" % grammar.initial_var)
-        print("Regras: ")
-        for var, ter in grammar.rules.items():
-            print("%s -> %s" % (var, ter))
-        print("\n\n\n")
+        gramatica_simplificada.simplificacao_stp4_exclusao_prod_simples()
+        printFinal.append("(2) Exclusão de Produções Simples")
+        printFinal.append("\n" + str(gramatica_simplificada))
 
-        # printFinal.append("(1) Exclusão de Produções Vazias \n\n Não existem produções vazias na gramatica")
+        gramatica_simplificada.simplificacao_stp5_exclusao_prod_inuteis()
+        printFinal.append("(3) Exclusão de Produções Inuteis")
+        printFinal.append("\n" + str(gramatica_simplificada))
 
-        grammar.varClosure()
+        gramatica_chomsky = copy.deepcopy(gramatica_simplificada)
 
-        printFinal.append("\n" + grammar.printGrammar("(2) Exclusão de Produções Simples"))
+        temp = gramatica_chomsky.chomsky_stp1_separacao()
 
-        print("\n\n\n")
-        print("Terminais: %s" % grammar.terminals)
-        print("Variaveis: %s" % grammar.variables)
-        print("Simbolo inicial: %s" % grammar.initial_var)
-        print("Regras: ")
-        for var, ter in grammar.rules.items():
-            print("%s -> %s" % (var, ter))
-        print("\n\n\n")
+        if not isinstance(temp, str):
+            printFinal.append("Forma normal de Chomsky - Tranformação de terminais")
+            printFinal.append("\n" + str(gramatica_chomsky))
 
-        grammar.uslessSymbol()
-
-        printFinal.append("\n" + grammar.printGrammar("(3) Exclusão de Produções Inuteis"))
-
-        print("\n\n\n")
-        print("Terminais: %s" % grammar.terminals)
-        print("Variaveis: %s" % grammar.variables)
-        print("Simbolo inicial: %s" % grammar.initial_var)
-        print("Regras: ")
-        for var, ter in grammar.rules.items():
-            print("%s -> %s" % (var, ter))
-        print("\n\n\n")
-
-        if not grammar.accepts_empty:
-            grammar.chomsky()
-
-            print("\n\n\n")
-            print("Terminais: %s" % grammar.terminals)
-            print("Variaveis: %s" % grammar.variables)
-            print("Simbolo inicial: %s" % grammar.initial_var)
-            print("Regras: ")
-            for var, ter in grammar.rules.items():
-                print("%s -> %s" % (var, ter))
-            print("\n\n\n")
-
-            printFinal.append("\n" + grammar.printGrammar("Forma normal de Chomsky - Tranformação de terminais"))
-
-            grammar.chomskyPart2()
-
-            printFinal.append("\n" + grammar.printGrammar("Forma normal de Chomsky - Tranformação das produções de conjunto maior que 2"))
+            gramatica_chomsky.chomsky_stp2_novas_variaveis()
+            printFinal.append("Forma normal de Chomsky - Tranformação das produções de conjunto maior que 2")
+            printFinal.append("\n" + str(gramatica_chomsky))
 
         else:
-            printFinal.append("Forma normal de Chomsky \n\n A gramática aceita palavra vazia.")
+            printFinal.append(temp)
 
-
-        grammar.clean()
-
-    return'\n----------------------------------------------------------------------\n'.join(printFinal)
-
-
+    return '\n----------------------------------------------------------------------\n'.join(printFinal)
