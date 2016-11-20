@@ -31,6 +31,7 @@ def simplifyAndChomsky(fileName):
 
         temp = gramatica_chomsky.chomsky_stp1_separacao()
 
+
         if not isinstance(temp, str):
             printFinal.append("Forma normal de Chomsky - Tranformação de terminais")
             printFinal.append("\n" + str(gramatica_chomsky))

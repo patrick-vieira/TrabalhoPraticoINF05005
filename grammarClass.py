@@ -71,14 +71,17 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
                                 self.empty_word[''.join(searchObj)] = 1
 
     def simplificacao_stp1_prod_vazias(self):
-        for var, ter in self.rules.items():
-            for item in ter:
-                rules_count = 0
-                for x in item:
-                    if x in self.variables and self.empty_word[x]:
-                        rules_count += 1
-                if rules_count == len(item):
-                    self.empty_word[var] = 1
+        quant_var = 0
+        while quant_var <= len(self.variables):
+            for var, ter in self.rules.items():
+                for item in ter:
+                    rules_count = 0
+                    for x in item:
+                        if x in self.variables and self.empty_word[x]:
+                            rules_count += 1
+                    if rules_count == len(item):
+                        self.empty_word[var] = 1
+            quant_var += 1
 
     def simplificacao_stp2_prod_vazias(self):
         for var, ter in self.rules.items():
