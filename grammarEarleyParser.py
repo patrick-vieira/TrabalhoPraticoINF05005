@@ -13,7 +13,20 @@ class EarleyParser:
         self.reconhecer_palavras_ate_tamanho = 5
         self.simbolo_marcador = 'º'
         self.conjunto_de_producoes_Dn = []
-        #self.combinacoes_palavras_possiveis() #todo ajustar
+
+    def to_str(self):
+
+        string_retorno = ''
+
+        for index, Dn in enumerate(self.conjunto_de_producoes_Dn):
+
+            string_retorno += "D" + str(index) + ':\n'
+
+            for variavel, producoes in Dn.items():
+                for producao in producoes:
+                    string_retorno += '\t' + variavel + ' -> ' + ''.join(producao) + '\n'
+
+        return string_retorno
 
     def verifica_palavra(self, palavra):
 
@@ -53,7 +66,7 @@ class EarleyParser:
 
                     producao_marcada.append('/0') #insere o /0 no final
 
-                    producao_marcada.append('predict inicial') #insere origem
+                    producao_marcada.append('\tpredict inicial') #insere origem
 
                     producoes_da_variavel[variavel].append(producao_marcada)
 
@@ -105,7 +118,7 @@ class EarleyParser:
                         if pode_inserir:
                             producao_que_chamou = ''.join(producao_dn).split('/' + str(indice_Dn))[0]  # TODO arrumar para não aparecer o que gerou a palavra anterior, só por boniteza
 
-                            producao_predict.append('predict da variavel ' + variavel_predict + ' da producao ' + producao_que_chamou)  # insere o /n no final
+                            producao_predict.append('\tpredict da variavel ' + variavel_predict + ' da producao ' + producao_que_chamou)  # insere o /n no final
 
                             if producao_predict not in self.conjunto_de_producoes_Dn[indice_Dn][variavel_predict]:  # verifica se essa produção já não existe mesmo, nem precisa
 
@@ -137,7 +150,7 @@ class EarleyParser:
 
                     producao[posicao_marcador + 1], producao[posicao_marcador] = producao[posicao_marcador], producao[posicao_marcador + 1]  # move marcador para direita
 
-                    producao[-1] = 'complete da producao ' + ''.join(producao_dn).split('/' + str(index_Dn_completado))[0]
+                    producao[-1] = '\tcomplete da producao ' + ''.join(producao_dn).split('/' + str(index_Dn_completado))[0]
 
                     if variavel_dn_completo in self.conjunto_de_producoes_Dn[-1]:
                         if producao not in self.conjunto_de_producoes_Dn[-1][variavel_dn_completo]:
@@ -219,24 +232,34 @@ class EarleyParser:
 
                     producao_escaneada[posicao_marcador+1], producao_escaneada[posicao_marcador] = producao_escaneada[posicao_marcador], producao_escaneada[posicao_marcador+1] #move marcador para direita
 
-                    producao_escaneada[-1] = 'scan terminal ' + terminal_procurado  # insere origem
+                    producao_escaneada[-1] = '\tscan terminal ' + terminal_procurado  # insere origem
 
                     producoes_do_scan[variavel_dn].append(producao_escaneada)
 
             #verificar se essas producões tem ao menos uma producao e já não esta no DN
             if producoes_do_scan not in self.conjunto_de_producoes_Dn[indice_dn][variavel_dn] and len(producoes_do_scan[variavel_dn]) > 0:
+
                 self.conjunto_de_producoes_Dn.append(producoes_do_scan)
+
                 flag_encontrou = True
 
         return flag_encontrou
 
     def combinacoes_palavras_possiveis(self):
-        for tamanho_palavra in range(1, self.reconhecer_palavras_ate_tamanho):
-            for combinacao in itertools.product(''.join(self.gramatica.terminals), repeat=tamanho_palavra):
-                print(''.join(combinacao))
-                print(combinacao)
-                self.verifica_palavra(combinacao)
 
+        for tamanho_palavra in range(1, self.reconhecer_palavras_ate_tamanho):
+
+            for combinacao in itertools.product(self.gramatica.terminals, repeat=tamanho_palavra):
+
+                resultado = self.verifica_palavra(combinacao)
+
+                print(str(resultado) + str(combinacao))
+
+                if resultado:
+
+                    self.palavras_reconhecidas.append(combinacao)
+
+        return self.palavras_reconhecidas
 
 
 fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-Lista2-10-b.txt'
@@ -250,5 +273,9 @@ if lines:
     oParcer = EarleyParser(grammar)
 
     resultado = oParcer.verifica_palavra(('id', '+', 'id'))
+
+    print(oParcer.to_str())
+
+    palavras = oParcer.combinacoes_palavras_possiveis()
 
 print(resultado)
