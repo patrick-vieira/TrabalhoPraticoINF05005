@@ -1,4 +1,5 @@
 import grammarFunctions as gram
+import grammarEarleyParser
 from easygui import *
 
 exit_prog = 0
@@ -27,7 +28,9 @@ while exit_prog != 1:
                 choice = 'Voltar'
 
             elif choice == 'Early Parser':
-                msgbox('Ainda não tem, mas vai')
+                palavra = enterbox('Insira uma palavra para reconhecimento:', title)
+                textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra))
+                choice = 'Voltar'
 
             elif choice == 'Editar':
                 fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(fileName))
@@ -49,7 +52,7 @@ while exit_prog != 1:
                 regras.append(enterbox('Insira uma regra', title))
         gram.makeGrammarFile(terminais, variaveis, inicial, regras)
 
-        choices = ['Simplificar gramática', 'Early', 'Editar', 'Voltar']
+        choices = ['Simplificar gramática', 'Early Parser', 'Editar', 'Voltar']
 
         while choice != 'Voltar':
             choice = buttonbox(msg, title, choices)
@@ -60,7 +63,9 @@ while exit_prog != 1:
                 choice = 'Voltar'
 
             elif choice == 'Early Parser':
-                msgbox('Ainda não tem, mas vai')
+                palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
+                textbox("Early Parser", title, grammarEarleyParser.earlyParser(localFile, palavra2))
+                choice = 'Voltar'
 
             elif choice == 'Editar':
                 fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(localFile))

@@ -1,11 +1,12 @@
 import copy
 import itertools
+import re
 
 import grammarClass
 
 class EarleyParser:
 
-    def __init__(self, gramatica):
+    def __init__(self, gramatica: object) -> object:
         self.gramatica = copy.deepcopy(gramatica) #faz uma copia fisica da gramatica, previne erro caso a gramatica seja alterada
         self.palavra = ''
         self.palavra_reconhecida = False
@@ -25,7 +26,6 @@ class EarleyParser:
             for variavel, producoes in Dn.items():
                 for producao in producoes:
                     string_retorno += '\t' + variavel + ' -> ' + ''.join(producao) + '\n'
-
         return string_retorno
 
     def verifica_palavra(self, palavra):
@@ -262,20 +262,32 @@ class EarleyParser:
         return self.palavras_reconhecidas
 
 
-fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-Lista2-10-b.txt'
+def earlyParser(fileName, stringPalavra):
+    printFinal = []
+    palavra = re.split(r",", stringPalavra)
+    print(palavra)
 
-with open(fileName) as f:
-    lines = f.read()
+    with open(fileName) as f:
+        lines = f.read()
 
-if lines:
-    grammar = grammarClass.Grammar(lines)
+    if lines:
+        grammar = grammarClass.Grammar(lines)
+        printFinal.append('Gramática extraída do arquivo ' + fileName)
+        printFinal.append(str(grammar))
 
-    oParcer = EarleyParser(grammar)
+        oParcer = EarleyParser(grammar)
 
-    resultado = oParcer.verifica_palavra(('id', '+', 'id'))
+        resultado = oParcer.verifica_palavra(palavra)
 
-    print(oParcer.to_str())
+        printFinal.append('Palavra de entrada:' + ''.join(palavra))
+        printFinal.append(oParcer.to_str())
 
-    palavras = oParcer.combinacoes_palavras_possiveis()
+        if resultado == True:
+            printFinal.append('Palavra é reconhecida pela gramática')
+        else:
+            printFinal.append('Palavra não é reconhecida pela gramática')
 
-print(resultado)
+        printFinal.append(str(resultado))
+
+
+    return '\n----------------------------------------------------------------------\n'.join(printFinal)
