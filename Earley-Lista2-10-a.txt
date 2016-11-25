@@ -1,0 +1,13 @@
+#Terminais
+[ b ]
+[ c ]
+#Variaveis
+[ S ]
+[ B ]
+[ C ]
+#Inicial
+[ S ]
+#Regras
+[ S ] > [ B ] [ C ]
+[ B ] > [ b ]
+[ C ] > [ c ] 
