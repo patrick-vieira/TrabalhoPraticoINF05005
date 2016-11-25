@@ -63,7 +63,7 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
                         searchObj = re.findall(exp, l)
                     else:
                         searchObj2 = re.findall(exp, l)
-                        if searchObj2:
+                        if searchObj2 and ''.join(searchObj) in self.variables:
                             self.rules[''.join(searchObj)].append(searchObj2)
                             if 'V' in searchObj2:
                                 print("Grammar.rules[%s].append(%s)" % (''.join(searchObj), searchObj2))
