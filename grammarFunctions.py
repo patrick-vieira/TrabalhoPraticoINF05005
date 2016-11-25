@@ -85,7 +85,6 @@ def makeGrammarFile(terminais, variaveis, inicial, regras):
     LStringRegras = []
     for i in range(len(regras)):
         LStringRegras.append(list(regras[i]))
-    print(LStringRegras)
     Lregras = [[] for i in range(len(LStringRegras))]
     for i in range(len(LStringRegras)):
         for j in range(len(LStringRegras[i])):
@@ -120,3 +119,22 @@ def makeGrammarFile(terminais, variaveis, inicial, regras):
 
 
     textFile.close()
+
+
+def takeStringFromFile(fileName):
+    textFile = open(fileName, 'r')
+    fileString = textFile.read()
+    textFile.close()
+    return fileString
+
+
+def saveEditFile(fileName, fileString):
+    fileArray = re.split(r'[.]', fileName)
+    fileName = fileArray[0]
+    fileName = fileName + '_edit'
+    fileName = fileName + '.txt'
+    textFile = open(fileName, 'w+')
+    textFile.write(fileString)
+    textFile.close()
+    return fileName
+
