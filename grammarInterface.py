@@ -5,29 +5,69 @@ exit_prog = 0
 
 while exit_prog != 1:
 
+
+
+
     msg = "Escolha a opção desejada:"
     title = "Trabalho Final - Linguagens Formais e Automatos"
-    choices = ['Simplificar Gramática', 'Earley Parser', 'Sair']
+    choices = ['Escolher arquivo', 'Fazer gramática', 'Sair']
     choice = buttonbox(msg, title, choices)
 
-    if choice == 'Simplificar Gramática':
+    if choice == 'Escolher arquivo':
+        fileName = fileopenbox("Nome do arquivo de gramática:", title, "*.txt")
 
-        msg = "Abrir arquivo da gramatica:"
-        choices = ['Escolher arquivo']
-        choice = buttonbox(msg, title, choices)
+        msg = "Escolha a opção desejada:"
+        choices = ['Simplificar gramática', 'Early Parser', 'Editar', 'Voltar']
+        while choice != 'Voltar':
+            choice = buttonbox(msg, title, choices)
 
-        if choice == 'Escolher arquivo':
-            fileName = fileopenbox("Nome do arquivo de gramática:", title, "*.txt")
 
-        textbox("Resultado da simplificação da gramática", title, gram.simplifyAndChomsky(fileName))
+            if choice == 'Simplificar gramática':
+                textbox("Resultado da simplificação da gramática", title, gram.simplifyAndChomsky(fileName))
+                choice = 'Voltar'
 
-    elif choice == 'Earley Parser':
-        msgbox('Ainda não tem, mas vai')
+            elif choice == 'Early Parser':
+                msgbox('Ainda não tem, mas vai')
+
+            elif choice == 'Editar':
+                fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(fileName))
+                fileName = gram.saveEditFile(fileName, fileString)
+
+
+
+    elif choice == 'Fazer gramática':
+        terminais = enterbox('Insira os terminais', title)
+        variaveis = enterbox('Insira as variáveis', title)
+        inicial = enterbox('Insira a variável inicial', title)
+        choices = ['Proxima', 'Acabou']
+        regras = []
+        localFile = 'GramaticaGerada.txt'
+
+        while choice != 'Acabou':
+            choice = buttonbox('Insira as regras da gramática', title, choices)
+            if choice == 'Proxima':
+                regras.append(enterbox('Insira uma regra', title))
+        gram.makeGrammarFile(terminais, variaveis, inicial, regras)
+
+        choices = ['Simplificar gramática', 'Early', 'Editar', 'Voltar']
+
+        while choice != 'Voltar':
+            choice = buttonbox(msg, title, choices)
+
+            if choice == 'Simplificar gramática':
+                textbox("Resultado da simplificação da gramática", title,
+                        gram.simplifyAndChomsky(localFile))
+                choice = 'Voltar'
+
+            elif choice == 'Early Parser':
+                msgbox('Ainda não tem, mas vai')
+
+            elif choice == 'Editar':
+                fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(localFile))
+                localFile = gram.saveEditFile(localFile, fileString)
+
 
     elif choice == 'Sair':
         exit_prog = 1
 
 exit()
-
-
-
