@@ -9,13 +9,17 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
         self.variables = []
         self.initial_var = []
         self.rules = {}  # rules: um dicionario que mantem todas as regras salvas usando as variaveis como indice
-        self.empty_word = {}
-        self.useless_symbol = {}
+        self.empty_word = {}  # Vlambda : conjunto (dicionario) das variaveis que constituem produções vazias(direta ou indiretamente)
+        self.useless_symbol = {}  # dicionario com os simbolos inuteis
         self.accepts_empty = 0
         self.has_empty = 0
+        self.is_simplificada = 0
+        self.is_fnc = 0
 
         self.read_grammar(linhas)
 
+
+    #sobreescrita da função str() para mostrar a gramatica de maneira mais didatica
     def __str__(self):
         rules = []
         temp_ter = []
@@ -33,56 +37,63 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
 
         return '\n\n'.join(result_Grammar)
 
+
+    #parser do arquivo de texto
     def read_grammar(self, lines):
         file_split = re.split(r"#Terminais|#Variaveis|#Inicial|#Regras", lines)
         file_rules = re.split(r" > |\n", file_split[4])
-        exp = r"\[ ([^]]*) \]"
+        exp = r"\[ ([^]]*) \]"  # expressao regular para pegar conteudo dentro de []
         for index, line in enumerate(file_split):
-            if index == 1:
+            if index == 1:  # terminais
                 searchObj = re.findall(exp, line)
                 if searchObj:
-                    self.terminals = searchObj
-            elif index == 2:
-                searchObj = re.findall(exp, line)
-                if searchObj:
-                    self.variables = searchObj
-                    for x in searchObj:
-                        self.rules[x] = []
-                        self.empty_word[x] = 0
-                        self.useless_symbol[x] = 1
+                    self.terminals = searchObj  # preenchendo lista de terminais
+            elif index == 2: #variaveis
+                variaveis = re.findall(exp, line)
+                if variaveis:
+                    self.variables = variaveis  # preenchendo lista de variaveis
+                    for variavel in variaveis:
+                        self.rules[variavel] = []  # inicializa dicionario de producoes, indice são as variaveis
+                        self.empty_word[variavel] = 0  # inicializa Vlambda
+                        self.useless_symbol[variavel] = 1  # inicializa todas produções como contendo simbolos inuteis
 
-            elif index == 3:
+            elif index == 3:  # simbolo inicial
                 searchObj = re.findall(exp, line)
                 if searchObj:
                     self.initial_var = searchObj
-                    self.useless_symbol[''.join(searchObj)] = 0
+                    self.useless_symbol[''.join(searchObj)] = 0  # produção do simbolo inicial não é mais inutil
 
-            elif index == 4:
-                for index, l in enumerate(file_rules):
-                    if index % 2 != 0:
-                        searchObj = re.findall(exp, l)
+            elif index == 4:  # produções
+                for index, l in enumerate(file_rules): #para cada produção
+                    if index % 2 != 0: #as produções fora divididas a esquerda e direita do simbolo '>', esquerda impar direita par
+                        esquerdaProd = re.findall(exp, l)  #variavel, lado esquerdo da '>', ou seja quando o index for impar
                     else:
-                        searchObj2 = re.findall(exp, l)
-                        if searchObj2:
-                            self.rules[''.join(searchObj)].append(searchObj2)
-                            if 'V' in searchObj2:
-                                print("Grammar.rules[%s].append(%s)" % (''.join(searchObj), searchObj2))
+                        direitaProd = re.findall(exp, l)
+                        if direitaProd:
+                            self.rules[''.join(esquerdaProd)].append(direitaProd)
+                            #verifica se tem palavra vazia, se sim adiciona essa variavel a Vlambda (empty_word)
+                            if 'V' in direitaProd:
+                                print("Grammar.rules[%s].append(%s)" % (''.join(esquerdaProd), direitaProd))
                                 self.has_empty = 1
-                                self.empty_word[''.join(searchObj)] = 1
+                                self.empty_word[''.join(esquerdaProd)] = 1
 
+    #etapa 1 Completa Vlambda (empty_word) indiretamente
     def simplificacao_stp1_prod_vazias(self):
-        for var, ter in self.rules.items():
-            for item in ter:
-                rules_count = 0
-                for x in item:
-                    if x in self.variables and self.empty_word[x]:
-                        rules_count += 1
-                if rules_count == len(item):
-                    self.empty_word[var] = 1
+        quant_var = 0
+        while quant_var <= len(self.variables):
+            for var, ter in self.rules.items():
+                for item in ter:
+                    rules_count = 0
+                    for x in item:
+                        if x in self.variables and self.empty_word[x]: ##
+                            rules_count += 1
+                    if rules_count == len(item):
+                        self.empty_word[var] = 1
+                    quant_var += 1
 
+    #etapa 2 gera as combiações possiveis das produções que contem uma variavel em Vlambda
     def simplificacao_stp2_prod_vazias(self):
         for var, ter in self.rules.items():
-            print("EITAAAAAAAAAA: %s" % self.empty_word)
             for item in self.rules[var]:
                 for x in item:
                     if x in self.variables:
@@ -92,6 +103,7 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
                             if aux and aux not in self.rules[var]:
                                 self.rules[var].append(aux)
 
+    #etapa 3 substitui a variavel pela produção
     def simplificacao_stp3_prod_vazias(self):
         for var, ter in self.rules.items():
             for item in ter:
@@ -204,6 +216,7 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
         temp = copy.deepcopy(self)
         temp.chomsky_stp1_separacao()
         temp.chomsky_stp2_novas_variaveis()
+        self.is_fnc = 1
         return temp
 
     def simplificar(self):
@@ -211,4 +224,5 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
         temp.simplificacao_stp1_prod_vazias()
         temp.simplificacao_stp2_prod_vazias()
         temp.simplificacao_stp3_prod_vazias()
+        self.is_simplificada = 1
         return temp
