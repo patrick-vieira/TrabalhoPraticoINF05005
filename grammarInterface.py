@@ -27,10 +27,24 @@ while exit_prog != 1:
                 textbox("Resultado da simplificação da gramática", title, gram.simplifyAndChomsky(fileName))
                 choice = 'Voltar'
 
+
             elif choice == 'Early Parser':
-                palavra = enterbox('Insira uma palavra para reconhecimento:', title)
-                textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra))
-                choice = 'Voltar'
+
+                outra_palavra = 1
+
+                while outra_palavra:
+
+                    palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
+
+                    textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra2))
+
+                    choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title,
+                                       ["Outra palavra", "Voltar"])
+
+                    if choice != "Outra palavra":
+                        choice = 'Voltar'
+
+                        outra_palavra = 0
 
             elif choice == 'Editar':
                 fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(fileName))
@@ -63,9 +77,15 @@ while exit_prog != 1:
                 choice = 'Voltar'
 
             elif choice == 'Early Parser':
-                palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
-                textbox("Early Parser", title, grammarEarleyParser.earlyParser(localFile, palavra2))
-                choice = 'Voltar'
+                outra_palavra = 1
+                while outra_palavra:
+                    palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
+                    textbox("Early Parser", title, grammarEarleyParser.earlyParser(localFile, palavra2))
+                    choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title, ["Outra palavra", "Voltar"])
+                    if choice != "Outra palavra":
+                        choice = 'Voltar'
+                        outra_palavra = 0
+
 
             elif choice == 'Editar':
                 fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(localFile))

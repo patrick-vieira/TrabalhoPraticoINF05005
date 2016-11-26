@@ -33,7 +33,7 @@ class EarleyParser:
 
         for pal in palavra:
             if pal not in self.gramatica.terminals:
-                return False
+                return "Terminais desconhecidos"
 
         self.conjunto_de_producoes_Dn = []
 
