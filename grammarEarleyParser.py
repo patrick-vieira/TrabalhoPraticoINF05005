@@ -204,7 +204,10 @@ class EarleyParser:
 
                     self.status_aceitacao = 'Palavra reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' pala produção ' + ''.join(self.gramatica.initial_var) + ' -> ' + ''.join(producao_da_inicial)
 
+                    self.gera_arvore_derivacao(self.palavra)
+
                     return True
+
             self.status_aceitacao = 'Palavra não reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' nem uma produção de ' + ''.join(self.gramatica.initial_var) + ' esta com o marcador ' + self.simbolo_marcador + ' no fim da produção.'
 
         return False
@@ -287,6 +290,68 @@ class EarleyParser:
         return self.palavras_reconhecidas
 
 
+    def valida_avanco_caracter(self, token, palavra):
+
+        posicao_marcador = palavra.index(self.simbolo_marcador)
+
+        direita_marcador = palavra[posicao_marcador + 1]
+
+        if token == direita_marcador:
+            palavra[posicao_marcador + 1], palavra[posicao_marcador] = palavra[posicao_marcador], palavra[posicao_marcador + 1]
+            return True
+
+        return False
+
+    def verifica_variavel(self, variavel):
+        pass
+
+    def gera_arvore_derivacao(self, palavra_entrada):
+
+        tokens = []
+        for var in self.gramatica.variables:
+            tokens.append(var)
+        for ter in self.gramatica.terminals:
+            tokens.append(ter)
+
+        palavra = []
+
+        palavra.insert(0, self.simbolo_marcador)    #insere o marcador no inicio da plavra
+
+        for terminal in palavra_entrada:
+            palavra.append(terminal)
+
+        palavra.append(self.simbolo_marcador)       #insere o marcador no fim da plavra
+
+        arvore = []
+
+        arvore.append(''.join(self.gramatica.initial_var))  # adiocina simbolo inicial na arvore
+
+        self.valida_avanco_caracter(tokens[2], palavra)
+        self.valida_avanco_caracter(tokens[1], palavra)
+
+        #quando chega em um terminal executa a função valida_avanco_caracter
+
+        for pro in self.gramatica.rules[arvore[-1]]:
+            pass
+
+
+        arvore_var = []
+
+        arvore_var.append(''.join(self.gramatica.initial_var)) #adiocina simbolo inicial na arvore
+        arvore_ter = []
+
+        for index, caracter in enumerate(self.palavra): #para cada simbolo da palavra
+            for terminais_var_inicial in self.gramatica.rules[arvore_var[index]]:  #para cada variavel da lista de variaveis da arvore
+                    for terminal in terminais_var_inicial:
+                        if terminal == caracter:  #se a produção contem o que procuramos
+                            pass
+
+
+
+        for terminais_iniciais_que_finalizaram in self.conjunto_de_producoes_Dn[-1][''.join(self.gramatica.initial_var)]:
+            pass
+
+
 def earlyParser(fileName, stringPalavra):
     printFinal = []
     palavra = re.split(r" ", stringPalavra)
@@ -317,7 +382,7 @@ def earlyParser(fileName, stringPalavra):
 
 def debug():
 
-    fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-Lista2-10-b.txt'
+    fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-teste_arvore.txt'
 
     with open(fileName) as f:
         lines = f.read()
@@ -329,12 +394,15 @@ def debug():
 
         #resultado = oParcer.verifica_palavra(('id', '+', 'id', '+', 'id', 'id', '+', 'id'))
 
-        #resultado = oParcer.verifica_palavra(('+', 'id'))
+        resultado = oParcer.verifica_palavra(('int',))
+        resultado = oParcer.verifica_palavra(('int',))
 
         #print(oParcer.to_str())
 
         #print(oParcer.status_aceitacao)
         reconhecer_palavras_ate = 4
-        oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
+        #oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
 
-    print("As palavras reconhecidas pela gramatica com tamanho até " + str(reconhecer_palavras_ate) + " são::\n" + "\n".join(oParcer.palavras_reconhecidas))
+    #print("As palavras reconhecidas pela gramatica com tamanho até " + str(reconhecer_palavras_ate) + " são::\n" + "\n".join(oParcer.palavras_reconhecidas))
+
+#debug()

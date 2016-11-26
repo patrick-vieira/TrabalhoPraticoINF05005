@@ -1,0 +1,17 @@
+#Terminais
+[ int ]
+[ + ]
+[ * ]
+[ ( ]
+[ ) ]
+#Variaveis
+[ E ]
+[ T ]
+#Inicial
+[ E ]
+#Regras
+[ E ] > [ T ] 
+[ E ] > [ T ] [ + ] [ E ]
+[ T ] > [ int ] 
+[ T ] > [ int ] [ * ] [ F ]
+[ T ] > [ ( ] [ E ] [ ) ]
