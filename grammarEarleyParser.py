@@ -145,21 +145,16 @@ class EarleyParser:
 
         for variavel_dn_completo, producoes_dn_completo in producoes_DN_indice_complete.items():  # em todas as produções do dn-completado avança o marcador
 
-            for producao in producoes_dn_completo:
                 posicao_marcador = producao.index(self.simbolo_marcador)
 
                 variavel = producao[posicao_marcador + 1]
 
-                if variavel in self.gramatica.variables:
+                if variavel_completa == variavel:
 
                     producao[posicao_marcador + 1], producao[posicao_marcador] = producao[posicao_marcador], producao[posicao_marcador + 1]  # move marcador para direita
 
                     producao[-1] = '\tcomplete da producao ' + ''.join(producao_dn).split('/' + str(index_Dn_completado))[0]
 
-                    if variavel_dn_completo in self.conjunto_de_producoes_Dn[-1]:
-                        if producao not in self.conjunto_de_producoes_Dn[-1][variavel_dn_completo]:
-                            self.conjunto_de_producoes_Dn[-1][variavel_dn_completo].append(producao)
-                            contador_producoes_adicionadas = contador_producoes_adicionadas + 1
                     else:
                         self.conjunto_de_producoes_Dn[-1][variavel_dn_completo] = []
                         self.conjunto_de_producoes_Dn[-1][variavel_dn_completo].append(producao)
@@ -192,7 +187,7 @@ class EarleyParser:
 
                 if self.trigger_complete(producao_dn):
 
-                    cont_avancos = self.aux_complete_puxa_avanca_marcador(producao_dn)
+                self.palavra_reconhecida = True
 
                     if cont_avancos > 1:  #todo ta muito feia essa logica aqui, da pra melhorar
                         flag_producao_nova = True
@@ -260,7 +255,6 @@ class EarleyParser:
                 print(str(resultado) + str(combinacao))
 
                 if resultado:
-
                     self.palavras_reconhecidas.append(combinacao)
 
         return self.palavras_reconhecidas
@@ -294,4 +288,3 @@ def earlyParser(fileName, stringPalavra):
         printFinal.append(str(resultado))
 
 
-    return '\n----------------------------------------------------------------------\n'.join(printFinal)
