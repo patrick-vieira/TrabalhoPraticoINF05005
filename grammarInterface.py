@@ -6,50 +6,48 @@ exit_prog = 0
 
 while exit_prog != 1:
 
-
-
-
     msg = "Escolha a opção desejada:"
     title = "Trabalho Final - Linguagens Formais e Automatos"
     choices = ['Escolher arquivo', 'Fazer gramática', 'Sair']
+
     choice = buttonbox(msg, title, choices)
 
     if choice == 'Escolher arquivo':
         fileName = fileopenbox("Nome do arquivo de gramática:", title, "*.txt")
 
-        msg = "Escolha a opção desejada:"
-        choices = ['Simplificar gramática', 'Early Parser', 'Editar', 'Voltar']
-        while choice != 'Voltar':
-            choice = buttonbox(msg, title, choices)
+        if fileName:
+            msg = "Escolha a opção desejada:"
+            choices = ['Simplificar gramática', 'Early Parser', 'Editar', 'Voltar']
+            while choice != 'Voltar':
+                choice = buttonbox(msg, title, choices)
 
 
-            if choice == 'Simplificar gramática':
-                textbox("Resultado da simplificação da gramática", title, gram.simplifyAndChomsky(fileName))
-                choice = 'Voltar'
+                if choice == 'Simplificar gramática':
+                    textbox("Resultado da simplificação da gramática", title, gram.simplifyAndChomsky(fileName))
+                    choice = 'Voltar'
 
 
-            elif choice == 'Early Parser':
+                elif choice == 'Early Parser':
 
-                outra_palavra = 1
+                    outra_palavra = 1
 
-                while outra_palavra:
+                    while outra_palavra:
 
-                    palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
+                        palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
 
-                    textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra2))
+                        textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra2))
 
-                    choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title,
-                                       ["Outra palavra", "Voltar"])
+                        choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title,
+                                           ["Outra palavra", "Voltar"])
 
-                    if choice != "Outra palavra":
-                        choice = 'Voltar'
+                        if choice != "Outra palavra":
+                            choice = 'Voltar'
 
-                        outra_palavra = 0
+                            outra_palavra = 0
 
-            elif choice == 'Editar':
-                fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(fileName))
-                fileName = gram.saveEditFile(fileName, fileString)
-
+                elif choice == 'Editar':
+                    fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(fileName))
+                    fileName = gram.saveEditFile(fileName, fileString)
 
 
     elif choice == 'Fazer gramática':
