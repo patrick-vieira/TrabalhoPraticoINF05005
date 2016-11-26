@@ -185,7 +185,7 @@ class EarleyParser:
 
             for producao_dn in producoes_dn:
 
-                if self.trigger_complete(producao_dn):
+                self.palavras_reconhecidas.append(self.palavra)
 
                 self.palavra_reconhecida = True
 
