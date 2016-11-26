@@ -46,6 +46,8 @@ class EarleyParser:
             if scan_resultado:
                 while self.complete() or self.predict(index+1) and not self.palavra_reconhecida:  # executa predict e complete até que nem um deles tenha adicionado mais produções em Dn
                     pass
+            else:
+                break
 
         return self.complete_verifica_aceitacao()
 
@@ -186,23 +188,24 @@ class EarleyParser:
 
     def complete_verifica_aceitacao(self):
 
-        for producao_da_inicial in self.conjunto_de_producoes_Dn[-1][''.join(self.gramatica.initial_var)]:  #para cada producao de d0 verifica a posicao do marcador
+        if len(self.conjunto_de_producoes_Dn) - 1 == len(self.palavra):
 
-            posicao_marcador = producao_da_inicial.index(self.simbolo_marcador)
+            for producao_da_inicial in self.conjunto_de_producoes_Dn[-1][''.join(self.gramatica.initial_var)]:  #para cada producao de d0 verifica a posicao do marcador
 
-            simbolo_direita_marcador = producao_da_inicial[posicao_marcador + 1]
+                posicao_marcador = producao_da_inicial.index(self.simbolo_marcador)
 
-            if simbolo_direita_marcador == '/0':
+                simbolo_direita_marcador = producao_da_inicial[posicao_marcador + 1]
 
-                self.palavras_reconhecidas.append(self.palavra)
+                if simbolo_direita_marcador == '/0':
 
-                self.palavra_reconhecida = True
+                    self.palavras_reconhecidas.append(self.palavra)
 
-                self.status_aceitacao = 'Palavra reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' pala produção ' + ''.join(self.gramatica.initial_var) + ' -> ' + ''.join(producao_da_inicial)
+                    self.palavra_reconhecida = True
 
-                return True
-        self.status_aceitacao = 'Palavra não reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' nem uma produção de ' + ''.join(self.gramatica.initial_var) + ' esta com o marcador ' + self.simbolo_marcador + ' no fim da produção.'
+                    self.status_aceitacao = 'Palavra reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' pala produção ' + ''.join(self.gramatica.initial_var) + ' -> ' + ''.join(producao_da_inicial)
 
+                    return True
+            self.status_aceitacao = 'Palavra não reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' nem uma produção de ' + ''.join(self.gramatica.initial_var) + ' esta com o marcador ' + self.simbolo_marcador + ' no fim da produção.'
 
         return False
 
@@ -265,7 +268,10 @@ class EarleyParser:
 
         return flag_encontrou
 
-    def combinacoes_palavras_possiveis(self):
+    def combinacoes_palavras_possiveis(self, tamanho_entrada=0):
+
+        if tamanho_entrada > 0:
+            self.reconhecer_palavras_ate_tamanho = tamanho_entrada
 
         for tamanho_palavra in range(1, self.reconhecer_palavras_ate_tamanho):
 
@@ -299,15 +305,18 @@ def earlyParser(fileName, stringPalavra):
         resultado = oParcer.verifica_palavra(palavra)
 
         printFinal.append('Palavra de entrada:' + ''.join(palavra))
-        printFinal.append(oParcer.to_str())
 
         printFinal.append(oParcer.status_aceitacao)
+
+        printFinal.append(oParcer.to_str())
+
 
         printFinal.append(str(resultado))
 
     return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
-def debugar():
+def debug():
+
     fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-Lista2-10-b.txt'
 
     with open(fileName) as f:
@@ -318,14 +327,14 @@ def debugar():
 
         oParcer = EarleyParser(grammar)
 
-        resultado = oParcer.verifica_palavra(('id', '+', 'id', '+', 'id', 'id', '+', 'id'))
+        #resultado = oParcer.verifica_palavra(('id', '+', 'id', '+', 'id', 'id', '+', 'id'))
 
-        #resultado = oParcer.verifica_palavra(('a', 'b', 'b', 'b'))
+        #resultado = oParcer.verifica_palavra(('+', 'id'))
 
-        print(oParcer.to_str())
+        #print(oParcer.to_str())
 
-        print(oParcer.status_aceitacao)
+        #print(oParcer.status_aceitacao)
+        reconhecer_palavras_ate = 4
+        oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
 
-        #oParcer.combinacoes_palavras_possiveis()
-
-    #print(resultado)
+    print("As palavras reconhecidas pela gramatica com tamanho até " + str(reconhecer_palavras_ate) + " são::\n" + "\n".join(oParcer.palavras_reconhecidas))
