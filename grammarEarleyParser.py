@@ -7,6 +7,9 @@ import grammarClass
 class EarleyParser:
 
     def __init__(self, gramatica: object) -> object:
+        self.arvore = []
+        self.NEXT = 0
+        self.palavra_arvore = []
         self.gramatica = copy.deepcopy(gramatica) #faz uma copia fisica da gramatica, previne erro caso a gramatica seja alterada
         self.palavra = ''
         self.palavra_reconhecida = False
@@ -190,25 +193,26 @@ class EarleyParser:
 
         if len(self.conjunto_de_producoes_Dn) - 1 == len(self.palavra):
 
-            for producao_da_inicial in self.conjunto_de_producoes_Dn[-1][''.join(self.gramatica.initial_var)]:  #para cada producao de d0 verifica a posicao do marcador
+            if ''.join(self.gramatica.initial_var) in self.conjunto_de_producoes_Dn[-1].keys():
+                for producao_da_inicial in self.conjunto_de_producoes_Dn[-1][''.join(self.gramatica.initial_var)]:  #para cada producao de d0 verifica a posicao do marcador
 
-                posicao_marcador = producao_da_inicial.index(self.simbolo_marcador)
+                    posicao_marcador = producao_da_inicial.index(self.simbolo_marcador)
 
-                simbolo_direita_marcador = producao_da_inicial[posicao_marcador + 1]
+                    simbolo_direita_marcador = producao_da_inicial[posicao_marcador + 1]
 
-                if simbolo_direita_marcador == '/0':
+                    if simbolo_direita_marcador == '/0':
 
-                    self.palavras_reconhecidas.append(self.palavra)
+                        self.palavras_reconhecidas.append(self.palavra)
 
-                    self.palavra_reconhecida = True
+                        self.palavra_reconhecida = True
 
-                    self.status_aceitacao = 'Palavra reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' pala produção ' + ''.join(self.gramatica.initial_var) + ' -> ' + ''.join(producao_da_inicial)
+                        self.status_aceitacao = 'Palavra reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' pala produção ' + ''.join(self.gramatica.initial_var) + ' -> ' + ''.join(producao_da_inicial)
 
-                    self.gera_arvore_derivacao(self.palavra)
+                        #self.gera_arvore_derivacao(self.palavra)
 
-                    return True
+                        return True
 
-            self.status_aceitacao = 'Palavra não reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' nem uma produção de ' + ''.join(self.gramatica.initial_var) + ' esta com o marcador ' + self.simbolo_marcador + ' no fim da produção.'
+                self.status_aceitacao = 'Palavra não reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' nem uma produção de ' + ''.join(self.gramatica.initial_var) + ' esta com o marcador ' + self.simbolo_marcador + ' no fim da produção.'
 
         return False
 
@@ -305,6 +309,11 @@ class EarleyParser:
     def verifica_variavel(self, variavel):
         pass
 
+    def verifica_qualquer_variavel(self, producao):
+
+        #chama Sn
+        pass
+
     def gera_arvore_derivacao(self, palavra_entrada):
 
         tokens = []
@@ -313,25 +322,22 @@ class EarleyParser:
         for ter in self.gramatica.terminals:
             tokens.append(ter)
 
-        palavra = []
-
-        palavra.insert(0, self.simbolo_marcador)    #insere o marcador no inicio da plavra
-
         for terminal in palavra_entrada:
-            palavra.append(terminal)
+            self.palavra_arvore.append(terminal)
 
-        palavra.append(self.simbolo_marcador)       #insere o marcador no fim da plavra
+        self.arvore.append(''.join(self.gramatica.initial_var))  # adiocina simbolo inicial na arvore
 
-        arvore = []
-
-        arvore.append(''.join(self.gramatica.initial_var))  # adiocina simbolo inicial na arvore
-
-        self.valida_avanco_caracter(tokens[2], palavra)
-        self.valida_avanco_caracter(tokens[1], palavra)
+        self.valida_avanco_caracter(tokens[2], self.palavra_arvore)
+        self.valida_avanco_caracter(tokens[1], self.palavra_arvore)
 
         #quando chega em um terminal executa a função valida_avanco_caracter
 
-        for pro in self.gramatica.rules[arvore[-1]]:
+        self.NEXT = 0
+
+        for pro in self.gramatica.rules[self.arvore[-1]]:
+            temp_next = self.NEXT
+            if self.verifica_qualquer_variavel(pro):#cham recurção da variaveç
+                arvore = True
             pass
 
 
@@ -394,15 +400,15 @@ def debug():
 
         #resultado = oParcer.verifica_palavra(('id', '+', 'id', '+', 'id', 'id', '+', 'id'))
 
-        resultado = oParcer.verifica_palavra(('int',))
-        resultado = oParcer.verifica_palavra(('int',))
-
+        #resultado = oParcer.verifica_palavra(('int',))
+        #resultado = oParcer.verifica_palavra(('int',))
+#
         #print(oParcer.to_str())
 
         #print(oParcer.status_aceitacao)
-        reconhecer_palavras_ate = 4
-        #oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
+        reconhecer_palavras_ate = 6
+        oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
 
-    #print("As palavras reconhecidas pela gramatica com tamanho até " + str(reconhecer_palavras_ate) + " são::\n" + "\n".join(oParcer.palavras_reconhecidas))
+    print("As palavras reconhecidas pela gramatica com tamanho até " + str(reconhecer_palavras_ate) + " são::\n" + "\n" + oParcer.palavras_reconhecidas)
 
 #debug()
