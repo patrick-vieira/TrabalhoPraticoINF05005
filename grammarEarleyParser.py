@@ -10,6 +10,7 @@ class EarleyParser:
         self.gramatica = copy.deepcopy(gramatica) #faz uma copia fisica da gramatica, previne erro caso a gramatica seja alterada
         self.palavra = ''
         self.palavra_reconhecida = False
+        self.status_aceitacao = ''
         self.palavras_reconhecidas = []
         self.reconhecer_palavras_ate_tamanho = 5
         self.simbolo_marcador = 'º'
@@ -43,13 +44,12 @@ class EarleyParser:
         for index, terminal in enumerate(palavra):
             scan_resultado = self.scan(terminal, index)# se conseguiu fazer scan no terminal
             if scan_resultado:
-                while self.complete(index+1) or self.predict(index+1) and not self.palavra_reconhecida:  # executa predict e complete até que nem um deles tenha adicionado mais produções em Dn
+                while self.complete() or self.predict(index+1) and not self.palavra_reconhecida:  # executa predict e complete até que nem um deles tenha adicionado mais produções em Dn
                     pass
             else:
                 return False
 
-        return True
-
+        return self.complete_verifica_aceitacao()
 
     def predict_inicial(self):
 
@@ -135,15 +135,17 @@ class EarleyParser:
 
         return flag_producao_nova
 
-    def aux_complete_puxa_avanca_marcador(self, producao_dn):
+    def aux_complete_puxa_avanca_marcador(self, variavel_completa, producao_dn):
 
         contador_producoes_adicionadas = 0
 
-        index_Dn_completado = int(producao_dn[-2].split('/')[1])
+        origem_prod = int(producao_dn[-2].split('/')[1])
 
-        producoes_DN_indice_complete = copy.deepcopy(self.conjunto_de_producoes_Dn[index_Dn_completado])
+        producoes_DN_que_completou = copy.deepcopy(self.conjunto_de_producoes_Dn[origem_prod])
 
-        for variavel_dn_completo, producoes_dn_completo in producoes_DN_indice_complete.items():  # em todas as produções do dn-completado avança o marcador
+        for var, producoes in producoes_DN_que_completou.items():
+
+            for producao in producoes:
 
                 posicao_marcador = producao.index(self.simbolo_marcador)
 
@@ -153,12 +155,21 @@ class EarleyParser:
 
                     producao[posicao_marcador + 1], producao[posicao_marcador] = producao[posicao_marcador], producao[posicao_marcador + 1]  # move marcador para direita
 
-                    producao[-1] = '\tcomplete da producao ' + ''.join(producao_dn).split('/' + str(index_Dn_completado))[0]
+                    producao[-1] = '\tcomplete da producao ' + variavel_completa + ' ->' + ''.join(producao_dn).split('/' + str(origem_prod))[0]
+
+                    if var in self.conjunto_de_producoes_Dn[-1]: #verifica se a variavel já existe no dn se existe só adiciona, se não cria e acidiona
+
+                        if producao not in self.conjunto_de_producoes_Dn[-1][var]:
+                            self.conjunto_de_producoes_Dn[-1][var].append(producao)
+
+                            contador_producoes_adicionadas += 1
 
                     else:
-                        self.conjunto_de_producoes_Dn[-1][variavel_dn_completo] = []
-                        self.conjunto_de_producoes_Dn[-1][variavel_dn_completo].append(producao)
-                        contador_producoes_adicionadas = contador_producoes_adicionadas + 1
+                        self.conjunto_de_producoes_Dn[-1][var] = []
+
+                        self.conjunto_de_producoes_Dn[-1][var].append(producao)
+
+                        contador_producoes_adicionadas += 1
 
         return contador_producoes_adicionadas
 
@@ -175,72 +186,84 @@ class EarleyParser:
 
         return False
 
-    def complete(self, indice_Dn): #se o marcador esta no final da gramatica (antes do /n), 'puxa' todas as produções do /n que tenham marcador antes de variavel, mas movendo o marcador para direita
+    def complete_verifica_aceitacao(self):
 
-        flag_producao_nova = False
+        for producao_da_inicial in self.conjunto_de_producoes_Dn[-1][''.join(self.gramatica.initial_var)]:  #para cada producao de d0 verifica a posicao do marcador
 
-        producoes_DN = copy.deepcopy(self.conjunto_de_producoes_Dn[indice_Dn])
+            posicao_marcador = producao_da_inicial.index(self.simbolo_marcador)
 
-        for variavel_dn, producoes_dn in producoes_DN.items():  # em todas as produções de dn
+            simbolo_direita_marcador = producao_da_inicial[posicao_marcador + 1]
 
-            for producao_dn in producoes_dn:
+            if simbolo_direita_marcador == '/0':
 
                 self.palavras_reconhecidas.append(self.palavra)
 
                 self.palavra_reconhecida = True
 
-                    if cont_avancos > 1:  #todo ta muito feia essa logica aqui, da pra melhorar
+                self.status_aceitacao = 'Palavra reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' pala produção ' + ''.join(self.gramatica.initial_var) + ' -> ' + ''.join(producao_da_inicial)
+
+                return True
+        self.status_aceitacao = 'Palavra não reconhecida pela liguagem: No passo D' + str(len(self.conjunto_de_producoes_Dn)-1) + ' nem uma produção de ' + ''.join(self.gramatica.initial_var) + ' esta com o marcador ' + self.simbolo_marcador + ' no fim da produção.'
+
+
+        return False
+
+    def complete(self): #se o marcador esta no final da gramatica (antes do /n), 'puxa' todas as produções do /n que tenham marcador antes de variavel, mas movendo o marcador para direita
+
+        flag_producao_nova = False
+
+        producoes_DN = copy.deepcopy(self.conjunto_de_producoes_Dn[-1])
+
+        for variavel_dn, producoes_dn in producoes_DN.items():  # em todas as produções de dn
+
+            for producao_dn in producoes_dn:
+
+                if self.trigger_complete(producao_dn):
+
+                    #cont_avancos = self.aux_complete_puxa_avanca_marcador(producao_dn)
+
+                    cont_avancos = self.aux_complete_puxa_avanca_marcador(variavel_dn, producao_dn)
+
+                    if cont_avancos > 0:  #todo ta muito feia essa logica aqui, da pra melhorar
                         flag_producao_nova = True
-
-
-        if ''.join(self.gramatica.initial_var) in self.conjunto_de_producoes_Dn[indice_Dn] and len(self.conjunto_de_producoes_Dn) == len(self.palavra):   #verifica se tem a variavel inicial no ultimo dn e se n é do tamanho da palavra
-
-            for producoes_inicial in self.conjunto_de_producoes_Dn[indice_Dn][''.join(self.gramatica.initial_var)]:  #para cada producao de d0 verifica a posicao do marcador
-
-                posicao_marcador = producoes_inicial.index(self.simbolo_marcador)
-
-                simbolo_direita_marcador = producoes_inicial[posicao_marcador + 1]
-
-                if simbolo_direita_marcador == '/0':
-
-                    self.palavras_reconhecidas.append(self.palavra)
-                    self.palavra_reconhecida = True
-                    return False
 
         return flag_producao_nova
 
-    def scan(self, terminal_procurado, indice_dn): #procura no D-index por alguma produção onde o terminal do lado direito do marcador, se sim cria D-index+1
+    def scan(self, terminal_procurado,indice_dn):  # procura no D-index por alguma produção onde o terminal do lado direito do marcador, se sim cria D-index+1
 
         flag_encontrou = False
 
         producoes_DN = copy.deepcopy(self.conjunto_de_producoes_Dn[indice_dn])
 
-        for variavel_dn, producoes_dn in producoes_DN.items():   #em todas as produções de dn
+        for variavel_dn, producoes_dn in producoes_DN.items():  # em todas as produções de dn
 
-            producoes_do_scan = {variavel_dn: []}
-
-            for producao_dn in producoes_dn: #busca todos os scans possiveis da variavel dn
+            for producao_dn in producoes_dn:  # busca todos os scans possiveis da variavel dn
 
                 posicao_marcador = producao_dn.index(self.simbolo_marcador)
 
-                terminal_scan = producao_dn[posicao_marcador+1]
+                terminal_scan = producao_dn[posicao_marcador + 1]
 
-                if terminal_scan in self.gramatica.terminals and terminal_scan == terminal_procurado:  #verifica se apos o marcador tem um terminal e redundantemente se é a variavel que procuramos
+                if terminal_scan in self.gramatica.terminals and terminal_scan == terminal_procurado:  # verifica se apos o marcador tem um terminal e redundantemente se é a variavel que procuramos
 
                     producao_escaneada = copy.deepcopy(producao_dn)
 
-                    producao_escaneada[posicao_marcador+1], producao_escaneada[posicao_marcador] = producao_escaneada[posicao_marcador], producao_escaneada[posicao_marcador+1] #move marcador para direita
+                    producao_escaneada[posicao_marcador + 1], producao_escaneada[posicao_marcador] = producao_escaneada[posicao_marcador], producao_escaneada[posicao_marcador + 1]  # move marcador para direita
 
                     producao_escaneada[-1] = '\tscan terminal ' + terminal_procurado  # insere origem
 
-                    producoes_do_scan[variavel_dn].append(producao_escaneada)
+                    if len(self.conjunto_de_producoes_Dn) - 1 == indice_dn:  # se o Dn não existe cria
+                        self.conjunto_de_producoes_Dn.append({})
 
-            #verificar se essas producões tem ao menos uma producao e já não esta no DN
-            if producoes_do_scan not in self.conjunto_de_producoes_Dn[indice_dn][variavel_dn] and len(producoes_do_scan[variavel_dn]) > 0:
+                    if variavel_dn in self.conjunto_de_producoes_Dn[-1].keys():  # se já tem produções dessa variavel adiciona nela
+                        self.conjunto_de_producoes_Dn[-1][variavel_dn].append(producao_escaneada)
+                    else:
+                        self.conjunto_de_producoes_Dn[-1][variavel_dn] = []
+                        self.conjunto_de_producoes_Dn[-1][variavel_dn].append(producao_escaneada)
 
-                self.conjunto_de_producoes_Dn.append(producoes_do_scan)
+                    flag_encontrou = True
 
-                flag_encontrou = True
+        if not flag_encontrou:
+            self.status_aceitacao = 'Scan falhou ao achar o terminal ' + terminal_procurado
 
         return flag_encontrou
 
@@ -252,7 +275,7 @@ class EarleyParser:
 
                 resultado = self.verifica_palavra(combinacao)
 
-                print(str(resultado) + str(combinacao))
+                print(str(resultado) + str(combinacao) + ' Status = ' + self.status_aceitacao)
 
                 if resultado:
                     self.palavras_reconhecidas.append(combinacao)
@@ -288,3 +311,27 @@ def earlyParser(fileName, stringPalavra):
         printFinal.append(str(resultado))
 
 
+    return '\n----------------------------------------------------------------------\n'.join(printFinal)
+
+
+fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-Lista2-10-b.txt'
+
+with open(fileName) as f:
+    lines = f.read()
+
+if lines:
+    grammar = grammarClass.Grammar(lines)
+
+    oParcer = EarleyParser(grammar)
+
+    resultado = oParcer.verifica_palavra(('id', '+', 'id', '+', 'id', 'id', '+', 'id'))
+
+    #resultado = oParcer.verifica_palavra(('a', 'b', 'b', 'b'))
+
+    print(oParcer.to_str())
+
+    print(oParcer.status_aceitacao)
+
+    #oParcer.combinacoes_palavras_possiveis()
+
+#print(resultado)
