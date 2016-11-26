@@ -1,0 +1,12 @@
+#Terminais
+[ id ]
+[ + ]
+#Variaveis
+[ E ]
+[ T ]
+#Inicial
+[ E ]
+#Regras
+[ E ] > [ T ] [ + ] [ id ]
+[ E ] > [ id ]
+[ T ] > [ E ] 

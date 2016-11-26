@@ -46,8 +46,6 @@ class EarleyParser:
             if scan_resultado:
                 while self.complete() or self.predict(index+1) and not self.palavra_reconhecida:  # executa predict e complete até que nem um deles tenha adicionado mais produções em Dn
                     pass
-            else:
-                return False
 
         return self.complete_verifica_aceitacao()
 
@@ -303,35 +301,31 @@ def earlyParser(fileName, stringPalavra):
         printFinal.append('Palavra de entrada:' + ''.join(palavra))
         printFinal.append(oParcer.to_str())
 
-        if resultado == True:
-            printFinal.append('Palavra é reconhecida pela gramática')
-        else:
-            printFinal.append('Palavra não é reconhecida pela gramática')
+        printFinal.append(oParcer.status_aceitacao)
 
         printFinal.append(str(resultado))
 
-
     return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
+def debugar():
+    fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-Lista2-10-b.txt'
 
-fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-Lista2-10-b.txt'
+    with open(fileName) as f:
+        lines = f.read()
 
-with open(fileName) as f:
-    lines = f.read()
+    if lines:
+        grammar = grammarClass.Grammar(lines)
 
-if lines:
-    grammar = grammarClass.Grammar(lines)
+        oParcer = EarleyParser(grammar)
 
-    oParcer = EarleyParser(grammar)
+        resultado = oParcer.verifica_palavra(('id', '+', 'id', '+', 'id', 'id', '+', 'id'))
 
-    resultado = oParcer.verifica_palavra(('id', '+', 'id', '+', 'id', 'id', '+', 'id'))
+        #resultado = oParcer.verifica_palavra(('a', 'b', 'b', 'b'))
 
-    #resultado = oParcer.verifica_palavra(('a', 'b', 'b', 'b'))
+        print(oParcer.to_str())
 
-    print(oParcer.to_str())
+        print(oParcer.status_aceitacao)
 
-    print(oParcer.status_aceitacao)
+        #oParcer.combinacoes_palavras_possiveis()
 
-    #oParcer.combinacoes_palavras_possiveis()
-
-#print(resultado)
+    #print(resultado)
