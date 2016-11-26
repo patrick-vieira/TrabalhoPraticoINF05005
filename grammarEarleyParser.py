@@ -30,6 +30,10 @@ class EarleyParser:
 
     def verifica_palavra(self, palavra):
 
+        for pal in palavra:
+            if pal not in self.gramatica.terminals:
+                return False
+
         self.conjunto_de_producoes_Dn = []
 
         self.predict_inicial()

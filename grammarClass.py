@@ -69,7 +69,7 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
                         esquerdaProd = re.findall(exp, l)  #variavel, lado esquerdo da '>', ou seja quando o index for impar
                     else:
                         direitaProd = re.findall(exp, l)
-                        if direitaProd:
+                        if direitaProd and ''.join(esquerdaProd) in self.variables:
                             self.rules[''.join(esquerdaProd)].append(direitaProd)
                             #verifica se tem palavra vazia, se sim adiciona essa variavel a Vlambda (empty_word)
                             if 'V' in direitaProd:
