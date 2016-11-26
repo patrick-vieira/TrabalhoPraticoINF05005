@@ -283,7 +283,7 @@ class EarleyParser:
 
 def earlyParser(fileName, stringPalavra):
     printFinal = []
-    palavra = re.split(r",", stringPalavra)
+    palavra = re.split(r" ", stringPalavra)
     print(palavra)
 
     with open(fileName) as f:
