@@ -3,6 +3,10 @@ import grammarEarleyParser
 from easygui import *
 
 exit_prog = 0
+title = "Trabalho Final - Linguagens Formais e Automatos"
+msg = "Trabalho Final - Linguagens Formais e Automatos\nConstruído por:\nLucas da Silva Flores (242317)\nMaicon da Cunha Vieira (242275)\nPatrick Dornelles da Silva Vieira (242320)\nVinicius Costa Barbosa dos Santos (242283)"
+
+msgbox(msg, title)
 
 while exit_prog != 1:
 
