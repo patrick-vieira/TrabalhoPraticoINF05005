@@ -38,17 +38,30 @@ class EarleyParser:
             if pal not in self.gramatica.terminals:
                 return "Terminais desconhecidos"
 
+        self.palavra_reconhecida = False
+
         self.conjunto_de_producoes_Dn = []
 
         self.predict_inicial()
 
         self.palavra = palavra
 
+        adc_comp = True
+        adc_pred = True
+
+
         for index, terminal in enumerate(palavra):
+            rodar_mais = 5
             scan_resultado = self.scan(terminal, index)# se conseguiu fazer scan no terminal
             if scan_resultado:
-                while self.complete() or self.predict(index+1) and not self.palavra_reconhecida:  # executa predict e complete até que nem um deles tenha adicionado mais produções em Dn
-                    pass
+                while adc_comp or adc_pred or rodar_mais > 0 and not self.palavra_reconhecida:  # executa predict e complete até que nem um deles tenha adicionado mais produções em Dn
+
+                    adc_comp = self.complete()
+
+                    adc_pred = self.predict(index+1)
+
+                    if not (adc_pred and adc_comp):
+                        rodar_mais -= 1
             else:
                 break
 
@@ -284,12 +297,21 @@ class EarleyParser:
 
             for combinacao in itertools.product(self.gramatica.terminals, repeat=tamanho_palavra):
 
-                resultado = self.verifica_palavra(combinacao)
+                palavra_teste = []
+
+                for term in combinacao:
+                    palavra_teste.append(term)
+
+                if combinacao == ('(', 'int', '+', 'int', ')'):
+                    print("stop")
+
+                resultado = self.verifica_palavra(palavra_teste)
 
                 print(str(resultado) + str(combinacao) + ' Status = ' + self.status_aceitacao)
 
                 if resultado:
-                    self.palavras_reconhecidas.append(combinacao)
+                    pass
+                    #self.palavras_reconhecidas.append(combinacao)
 
         return self.palavras_reconhecidas
 
@@ -306,10 +328,10 @@ class EarleyParser:
 
         return False
 
-    def verifica_variavel(self, variavel):
+    def arvore_testar_variavel(self, variavel):
         pass
 
-    def verifica_qualquer_variavel(self, producao):
+    def arvore_testar_producao(self, producao):
 
         #chama Sn
         pass
@@ -336,7 +358,7 @@ class EarleyParser:
 
         for pro in self.gramatica.rules[self.arvore[-1]]:
             temp_next = self.NEXT
-            if self.verifica_qualquer_variavel(pro):#cham recurção da variaveç
+            if self.arvore_testar_producao(pro):#cham recurção da variaveç
                 arvore = True
             pass
 
@@ -386,35 +408,6 @@ def earlyParser(fileName, stringPalavra):
 
     return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
-def combinacoes(fileName, tamanho):
-    printFinal = []
-
-    with open(fileName) as f:
-        lines = f.read()
-
-    if lines:
-        grammar = grammarClass.Grammar(lines)
-        printFinal.append('Gramática extraída do arquivo ' + fileName)
-        printFinal.append(str(grammar))
-
-        oParcer = EarleyParser(grammar)
-
-        reconhecer_palavras_ate = int(tamanho) + 1
-
-        oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
-
-        printFinal.append('Até tamanho: ' + tamanho)
-
-        resultado = []
-
-        for item in oParcer.palavras_reconhecidas:
-            if ''.join(item) not in resultado:
-                resultado.append(''.join(item))
-
-        printFinal.append(str('\n'.join(resultado)))
-
-    return '\n----------------------------------------------------------------------\n'.join(printFinal)
-
 def debug():
 
     fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-teste_arvore.txt'
@@ -429,15 +422,15 @@ def debug():
 
         #resultado = oParcer.verifica_palavra(('id', '+', 'id', '+', 'id', 'id', '+', 'id'))
 
-        #resultado = oParcer.verifica_palavra(('int',))
+        #resultado = oParcer.verifica_palavra(('(', 'int', '+', 'int', ')'))
         #resultado = oParcer.verifica_palavra(('int',))
 #
-        #print(oParcer.to_str())
+        print(oParcer.to_str())
 
-        #print(oParcer.status_aceitacao)
-        reconhecer_palavras_ate = 6
+        print(oParcer.status_aceitacao)
+        reconhecer_palavras_ate = 7
         oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
 
-    print("As palavras reconhecidas pela gramatica com tamanho até " + str(reconhecer_palavras_ate) + " são::\n" + "\n" + oParcer.palavras_reconhecidas)
+        print("As palavras reconhecidas pela gramatica com tamanho até " + str(reconhecer_palavras_ate) + " são::\n" + str(oParcer.palavras_reconhecidas))
 
 #debug()
