@@ -29,21 +29,45 @@ while exit_prog != 1:
 
                 elif choice == 'Early Parser':
 
-                    outra_palavra = 1
+                    op = buttonbox("Escolha uma opção:", title, ["Verificar palavra", "Palavras aceitas até tamanho dado"])
 
-                    while outra_palavra:
+                    if op == "Verificar palavra":
 
-                        palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
+                        outra_palavra = 1
 
-                        textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra2))
+                        while outra_palavra:
 
-                        choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title,
-                                           ["Outra palavra", "Voltar"])
+                            palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
 
-                        if choice != "Outra palavra":
-                            choice = 'Voltar'
+                            textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra2))
 
-                            outra_palavra = 0
+                            choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title,
+                                               ["Outra palavra", "Voltar"])
+
+                            if choice != "Outra palavra":
+                                choice = 'Voltar'
+
+                                outra_palavra = 0
+
+                    elif op == "Palavras aceitas até tamanho dado":
+
+                        outro_tamanho = 1
+
+                        while outro_tamanho:
+
+                            tamanho = enterbox('Insira o tamanho maximo das palavras:', title)
+
+                            textbox("Palavras aceitas pela gramática:", title, grammarEarleyParser.combinacoes(fileName, tamanho))
+
+                            choice = buttonbox("Deseja testar outros tamanhos nesta mesma gramática?", title,
+                                               ["Outro tamanho", "Voltar"])
+
+                            if choice != "Outro tamanho":
+                                choice = 'Voltar'
+
+                                outro_tamanho = 0
+
+
 
                 elif choice == 'Editar':
                     fileString = textbox("Edite o arquivo:", title, gram.takeStringFromFile(fileName))

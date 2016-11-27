@@ -386,6 +386,35 @@ def earlyParser(fileName, stringPalavra):
 
     return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
+def combinacoes(fileName, tamanho):
+    printFinal = []
+
+    with open(fileName) as f:
+        lines = f.read()
+
+    if lines:
+        grammar = grammarClass.Grammar(lines)
+        printFinal.append('Gramática extraída do arquivo ' + fileName)
+        printFinal.append(str(grammar))
+
+        oParcer = EarleyParser(grammar)
+
+        reconhecer_palavras_ate = int(tamanho) + 1
+
+        oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
+
+        printFinal.append('Até tamanho: ' + tamanho)
+
+        resultado = []
+
+        for item in oParcer.palavras_reconhecidas:
+            if ''.join(item) not in resultado:
+                resultado.append(''.join(item))
+
+        printFinal.append(str('\n'.join(resultado)))
+
+    return '\n----------------------------------------------------------------------\n'.join(printFinal)
+
 def debug():
 
     fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-teste_arvore.txt'
