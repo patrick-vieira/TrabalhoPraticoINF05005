@@ -1,0 +1,107 @@
+Gramática extraída do arquivo C:\Users\vieir\Documents\GitHub\TrabalhoPraticoINF05005\Earley-JM.txt
+----------------------------------------------------------------------
+Terminais: astronomers, ears, saw, stars, telescopes, with
+
+Variaveis: N, NP, P, PP, S, W, WP
+
+Simbolo inicial: S
+
+Regras: {N -> astronomers | ears | stars | telescopes,
+NP -> N | NPPP,
+P -> with,
+PP -> PNP,
+S -> NPWP,
+W -> saw,
+WP -> WNP | WPPP}
+----------------------------------------------------------------------
+Palavra de entrada:astronomers saw stars with ears
+----------------------------------------------------------------------
+Arvore apartir do(s) elemento(s):
+	 |	 50	 ||	 S	 ||	 NP WP º		 ||	 [0, 5]	 ||	 [8, 46]	 ||	 Complete		|
+	 |	 52	 ||	 S	 ||	 NP WP º		 ||	 [0, 5]	 ||	 [8, 48]	 ||	 Complete		|
+----------------------------------------------------------------------
+D0:
+
+|	 0	 ||	 S	 ||	 º NP WP		 ||	 [0, 0]	 ||	 []	 ||	 Predict inicial		|
+|	 1	 ||	 NP	 ||	 º NP PP		 ||	 [0, 0]	 ||	 []	 ||	 Predict		|
+|	 2	 ||	 NP	 ||	 º N		 ||	 [0, 0]	 ||	 []	 ||	 Predict		|
+|	 3	 ||	 N	 ||	 º astronomers		 ||	 [0, 0]	 ||	 []	 ||	 Predict		|
+|	 4	 ||	 N	 ||	 º ears		 ||	 [0, 0]	 ||	 []	 ||	 Predict		|
+|	 5	 ||	 N	 ||	 º stars		 ||	 [0, 0]	 ||	 []	 ||	 Predict		|
+|	 6	 ||	 N	 ||	 º telescopes		 ||	 [0, 0]	 ||	 []	 ||	 Predict		|
+D1:
+
+|	 7	 ||	 N	 ||	 astronomers º		 ||	 [0, 1]	 ||	 []	 ||	 Scan		|
+|	 8	 ||	 NP	 ||	 N º		 ||	 [0, 1]	 ||	 [7]	 ||	 Complete		|
+|	 9	 ||	 S	 ||	 NP º WP		 ||	 [0, 1]	 ||	 [8]	 ||	 Complete		|
+|	 10	 ||	 NP	 ||	 NP º PP		 ||	 [0, 1]	 ||	 [8]	 ||	 Complete		|
+|	 11	 ||	 WP	 ||	 º W NP		 ||	 [1, 1]	 ||	 []	 ||	 Predict		|
+|	 12	 ||	 WP	 ||	 º WP PP		 ||	 [1, 1]	 ||	 []	 ||	 Predict		|
+|	 13	 ||	 PP	 ||	 º P NP		 ||	 [1, 1]	 ||	 []	 ||	 Predict		|
+|	 14	 ||	 W	 ||	 º saw		 ||	 [1, 1]	 ||	 []	 ||	 Predict		|
+|	 15	 ||	 P	 ||	 º with		 ||	 [1, 1]	 ||	 []	 ||	 Predict		|
+D2:
+
+|	 16	 ||	 W	 ||	 saw º		 ||	 [1, 2]	 ||	 []	 ||	 Scan		|
+|	 17	 ||	 WP	 ||	 W º NP		 ||	 [1, 2]	 ||	 [16]	 ||	 Complete		|
+|	 18	 ||	 NP	 ||	 º NP PP		 ||	 [2, 2]	 ||	 []	 ||	 Predict		|
+|	 19	 ||	 NP	 ||	 º N		 ||	 [2, 2]	 ||	 []	 ||	 Predict		|
+|	 20	 ||	 N	 ||	 º astronomers		 ||	 [2, 2]	 ||	 []	 ||	 Predict		|
+|	 21	 ||	 N	 ||	 º ears		 ||	 [2, 2]	 ||	 []	 ||	 Predict		|
+|	 22	 ||	 N	 ||	 º stars		 ||	 [2, 2]	 ||	 []	 ||	 Predict		|
+|	 23	 ||	 N	 ||	 º telescopes		 ||	 [2, 2]	 ||	 []	 ||	 Predict		|
+D3:
+
+|	 24	 ||	 N	 ||	 stars º		 ||	 [2, 3]	 ||	 []	 ||	 Scan		|
+|	 25	 ||	 NP	 ||	 N º		 ||	 [2, 3]	 ||	 [24]	 ||	 Complete		|
+|	 26	 ||	 WP	 ||	 W NP º		 ||	 [1, 3]	 ||	 [16, 25]	 ||	 Complete		|
+|	 27	 ||	 NP	 ||	 NP º PP		 ||	 [2, 3]	 ||	 [25]	 ||	 Complete		|
+|	 28	 ||	 PP	 ||	 º P NP		 ||	 [3, 3]	 ||	 []	 ||	 Predict		|
+|	 29	 ||	 S	 ||	 NP WP º		 ||	 [0, 3]	 ||	 [8, 26]	 ||	 Complete		|
+|	 30	 ||	 WP	 ||	 WP º PP		 ||	 [1, 3]	 ||	 [26]	 ||	 Complete		|
+|	 31	 ||	 P	 ||	 º with		 ||	 [3, 3]	 ||	 []	 ||	 Predict		|
+D4:
+
+|	 32	 ||	 P	 ||	 with º		 ||	 [3, 4]	 ||	 []	 ||	 Scan		|
+|	 33	 ||	 PP	 ||	 P º NP		 ||	 [3, 4]	 ||	 [32]	 ||	 Complete		|
+|	 34	 ||	 NP	 ||	 º NP PP		 ||	 [4, 4]	 ||	 []	 ||	 Predict		|
+|	 35	 ||	 NP	 ||	 º N		 ||	 [4, 4]	 ||	 []	 ||	 Predict		|
+|	 36	 ||	 N	 ||	 º astronomers		 ||	 [4, 4]	 ||	 []	 ||	 Predict		|
+|	 37	 ||	 N	 ||	 º ears		 ||	 [4, 4]	 ||	 []	 ||	 Predict		|
+|	 38	 ||	 N	 ||	 º stars		 ||	 [4, 4]	 ||	 []	 ||	 Predict		|
+|	 39	 ||	 N	 ||	 º telescopes		 ||	 [4, 4]	 ||	 []	 ||	 Predict		|
+D5:
+
+|	 40	 ||	 N	 ||	 ears º		 ||	 [4, 5]	 ||	 []	 ||	 Scan		|
+|	 41	 ||	 NP	 ||	 N º		 ||	 [4, 5]	 ||	 [40]	 ||	 Complete		|
+|	 42	 ||	 PP	 ||	 P NP º		 ||	 [3, 5]	 ||	 [32, 41]	 ||	 Complete		|
+|	 43	 ||	 NP	 ||	 NP º PP		 ||	 [4, 5]	 ||	 [41]	 ||	 Complete		|
+|	 44	 ||	 PP	 ||	 º P NP		 ||	 [5, 5]	 ||	 []	 ||	 Predict		|
+|	 45	 ||	 NP	 ||	 NP PP º		 ||	 [2, 5]	 ||	 [25, 42]	 ||	 Complete		|
+|	 46	 ||	 WP	 ||	 WP PP º		 ||	 [1, 5]	 ||	 [26, 42]	 ||	 Complete		|
+|	 47	 ||	 P	 ||	 º with		 ||	 [5, 5]	 ||	 []	 ||	 Predict		|
+|	 48	 ||	 WP	 ||	 W NP º		 ||	 [1, 5]	 ||	 [16, 45]	 ||	 Complete		|
+|	 49	 ||	 NP	 ||	 NP º PP		 ||	 [2, 5]	 ||	 [45]	 ||	 Complete		|
+|	 50	 ||	 S	 ||	 NP WP º		 ||	 [0, 5]	 ||	 [8, 46]	 ||	 Complete		|
+|	 51	 ||	 WP	 ||	 WP º PP		 ||	 [1, 5]	 ||	 [46]	 ||	 Complete		|
+|	 52	 ||	 S	 ||	 NP WP º		 ||	 [0, 5]	 ||	 [8, 48]	 ||	 Complete		|
+|	 53	 ||	 WP	 ||	 WP º PP		 ||	 [1, 5]	 ||	 [48]	 ||	 Complete		|
+
+----------------------------------------------------------------------
+True
+
+
+#|	 50	 ||	 S	 ||	 NP WP º		 ||	 [0, 5]	 ||	 [8, 46]	 ||	 Complete		|
+	##|	 8	 ||	 NP	 ||	 N º		 ||	 [0, 1]	 ||	 [7]	 ||	 Complete		|
+		###|	 7	 ||	 N	 ||	 astronomers º		 ||	 [0, 1]	 ||	 []	 ||	 Scan		|
+	##|	 46	 ||	 WP	 ||	 WP PP º		 ||	 [1, 5]	 ||	 [26, 42]	 ||	 Complete		|
+		###|	 26	 ||	 WP	 ||	 W NP º		 ||	 [1, 3]	 ||	 [16, 25]	 ||	 Complete		|
+			####|	 16	 ||	 W	 ||	 saw º		 ||	 [1, 2]	 ||	 []	 ||	 Scan		|
+			####|	 25	 ||	 NP	 ||	 N º		 ||	 [2, 3]	 ||	 [24]	 ||	 Complete		|
+				#####|	 24	 ||	 N	 ||	 stars º		 ||	 [2, 3]	 ||	 []	 ||	 Scan		|
+		###|	 42	 ||	 PP	 ||	 P NP º		 ||	 [3, 5]	 ||	 [32, 41]	 ||	 Complete		|
+			####|	 32	 ||	 P	 ||	 with º		 ||	 [3, 4]	 ||	 []	 ||	 Scan		|
+			####|	 41	 ||	 NP	 ||	 N º		 ||	 [4, 5]	 ||	 [40]	 ||	 Complete		|
+				#####|	 40	 ||	 N	 ||	 ears º		 ||	 [4, 5]	 ||	 []	 ||	 Scan		|
+			
+			

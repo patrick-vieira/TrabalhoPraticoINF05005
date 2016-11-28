@@ -9,9 +9,10 @@
 [ T ]
 #Inicial
 [ E ]
-#Regras
+#Regras    #Arvore ( int ) = [E [T [(] [E [T int]] [)]]]
 [ E ] > [ T ] 
 [ E ] > [ T ] [ + ] [ E ]
 [ T ] > [ int ] 
-[ T ] > [ int ] [ * ] [ F ]
+[ T ] > [ int ] [ * ] [ E ]
 [ T ] > [ ( ] [ E ] [ ) ]
+
