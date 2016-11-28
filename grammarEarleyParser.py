@@ -28,22 +28,15 @@ class struct_elemento_tabela:
 
 class EarleyParser:
     def __init__(self, gramatica: object) -> object:
-        self.arvore_var = []
-        self.arvore = []
-        self.NEXT = 0
-        self.palavra_arvore = []
-        self.raizes_das_arvores = []
-        self.gramatica = copy.deepcopy(
-            gramatica)  # faz uma copia fisica da gramatica, previne erro caso a gramatica seja alterada
+        self.gramatica = copy.deepcopy(gramatica)  # faz uma copia fisica da gramatica, previne erro caso a gramatica seja alterada
         self.palavra = ''
         self.palavra_reconhecida = False
-        self.status_aceitacao = ''
         self.palavras_reconhecidas = []
         self.reconhecer_palavras_ate_tamanho = 5
         self.simbolo_marcador = 'º'
         self.conjunto_de_producoes_Dn = []
-        self.tabela = []
-        self.chart = []
+        self.arvores = []
+        self.arvore = []
         self.contador = 0
 
     def to_str(self):
@@ -333,9 +326,9 @@ class EarleyParser:
 
     def complete_verifica_aceitacao(self):
 
-        self.raizes_das_arvores = []
-
         if len(self.conjunto_de_producoes_Dn) - 1 == len(self.palavra):
+
+            flag_palavra_valida = False
 
             str_mensagem = 'Palavra: ' + ' '.join(self.palavra)
             str_mensagem += '\nArvore apartir do(s) elemento(s):'
@@ -345,17 +338,12 @@ class EarleyParser:
             for elemento in producoes_D_ultimo: #para cada elemento da ultima lista
 
                 if elemento.posicao == [0, len(self.palavra)] and elemento.producao[-1] == self.simbolo_marcador:  #verifica se foi criado em 0 e terminou em Dn
-                    self.raizes_das_arvores.append(elemento)
+                    self.arvores.append([elemento, self.gera_arvore_derivacao(elemento.index, [])])
                     str_mensagem += "\n" + elemento.to_string()
+                    flag_palavra_valida = True
 
-            if len(self.raizes_das_arvores) > 0:
-
-                print(str_mensagem)
-
+            if flag_palavra_valida:
                 return True
-
-            else:
-                print('Palavra não foi aceita.')
 
         return False
 
@@ -383,130 +371,51 @@ class EarleyParser:
 
         return self.palavras_reconhecidas
 
-    def gera_arvore_derivacao(self, indice_raiz):
-        """ver o PDF que o sor colocou no moodle
-        e o txt resultado JM para palavra do PDF
-        nele tem todos os elementos para fazer a afunção,
-        no final coloquei como é feita a chamada
 
-        recurção simples
+    def get_elemento_da_lista(self, indice):
 
-        raiz(index):
-            apend(raiz(todos back_pointers))
-            return  var ou terminal
-        """
+        for Dn in self.conjunto_de_producoes_Dn:
+            for elemento in Dn:
+                if elemento.index == indice:
+                    return elemento
 
-        pass
+        return
 
 
+    def gera_arvore_derivacao(self, indice_raiz, arvore=[]):
 
-''' Esse algoritmo reconhece palavras sem usar earley, apenas com a arvore.
+        elemento = self.get_elemento_da_lista(indice_raiz)
 
-    def valida_avanco_caracter(self, token):
+        arvore.append('[')
 
-        next = self.palavra_arvore[self.NEXT]
+        arvore.append(elemento.variavel)
 
-        if token == next:
-            self.NEXT += 1
-            # print("chegou no terminal: " + token)
-            self.arvore_var.append(token)
-            # self.arvore_var.append(']')
-            return True
+        for indice_back_pointer in elemento.back_pointer:
+            self.gera_arvore_derivacao(indice_back_pointer, arvore)
 
-        return False
+        if len(elemento.back_pointer) == 0:
+            arvore.append(' ' + elemento.producao[0])
 
-    def arvore_testar_variavel(self, variavel):
+        arvore.append(']')
 
-        next = self.NEXT  # salvando pra quando avançar mas n estar ok
+        return arvore
 
-        for token in self.gramatica.rules[variavel]:  # testa as produções dessa variavel
+    def gera_arvore_derivacao_oo(self, indice_raiz):
 
-            self.NEXT = next
+        elemento = self.get_elemento_da_lista(indice_raiz)
 
-            if self.arvore_testar_producao(token):
-                # self.arvore_var.append(''.join(variavel)) # trocar de posição pois a var que gerou o terminal é essa
-                return True
+        self.arvore.append('[')
 
-    def arvore_testar_producao(self, token):
+        self.arvore.append(elemento.variavel)
 
-        if ''.join(token) in self.gramatica.terminals:  # se é um terminal
-            if self.valida_avanco_caracter(''.join(token)):
-                print("--------Produção anterior levou para terminal: " + ''.join(token))
-                return True
-            return False  # chegou em um terminal mas não é o que queremos
+        for indice_back_pointer in elemento.back_pointer:
+            self.gera_arvore_derivacao(indice_back_pointer)
 
-        if ''.join(token) in self.gramatica.rules.keys():  # se é variavel
+        if len(elemento.back_pointer) == 0:
+            self.arvore.append(' ' + elemento.producao[0])
 
-            if self.arvore_testar_variavel(''.join(token)):
-                print("-------Produção : " + ''.join(token))
-                return True
-            else:
-                return False
 
-        for producao in token:  # token é uma producao(lado direit) testar todas as suas variaveis e terminais elas se alguma aceitar continua
-
-            # print("Produção: " + ''.join(token) + " -> " + producao)
-            print("Para : " + producao + ' da produção: ' + ''.join(token))
-
-            if not self.arvore_testar_producao(producao):  # se aceitou para
-                print('=======  ' + producao + " não aceita")
-                return False
-
-            print('=======  Produção aceita ' + producao)
-
-        return True
-
-    def arvore_variavel_inicial(self):
-
-        next = self.NEXT  # salvando pra quando avançar mas n estar ok
-
-        for producoes_da_variavel_inicial in self.gramatica.rules[''.join(self.gramatica.initial_var)]:
-
-            self.NEXT = next
-
-            if self.arvore_testar_producao(producoes_da_variavel_inicial):  # se a producao finalizou
-
-                if self.NEXT == len(self.palavra_arvore):
-                    print("Produção inicial: " + ''.join(self.gramatica.initial_var) + ' aceitou em ' + ''.join(
-                        producoes_da_variavel_inicial))
-                    return True
-
-                else:
-                    print("Produção inicial: " + ''.join(self.gramatica.initial_var) + ' não aceitou em' + ''.join(
-                        producoes_da_variavel_inicial))
-
-        return False
-
-    def gera_arvore_derivacao(self, palavra_entrada):
-
-        tokens = []
-        for var in self.gramatica.variables:
-            tokens.append(var)
-        for ter in self.gramatica.terminals:
-            tokens.append(ter)
-
-        self.palavra_arvore = []
-
-        for terminal in palavra_entrada:
-            self.palavra_arvore.append(terminal)
-
-        self.arvore.append(''.join(self.gramatica.initial_var))  # adiocina simbolo inicial na arvore
-
-        self.NEXT = 0
-
-        palavra_aceita = self.arvore_variavel_inicial()
-
-        if palavra_aceita:
-            print("\n======================= \n=======================  Aceitou: " + ''.join(
-                self.palavra_arvore) + "\n=======================")
-        else:
-
-            print("\n======================= \n=======================  Não Aceitou: " + ''.join(
-                self.palavra_arvore) + "\n=======================")
-
-        return palavra_aceita
-'''
-
+        self.arvore.append(']')
 
 
 def earlyParser(fileName, stringPalavra):
@@ -528,12 +437,20 @@ def earlyParser(fileName, stringPalavra):
 
         printFinal.append('Palavra de entrada: ' + ' '.join(palavra))
 
-        raizes = 'Arvore apartir do(s) elemento(s):'
+        if resultado == True:
 
-        for raiz in oParcer.raizes_das_arvores:
-            raizes += '\n\t ' + raiz.to_string()
+            raizes = 'Arvore apartir do(s) elemento(s):'
 
-        printFinal.append(raizes)
+            for arvore in oParcer.arvores:
+                raizes += '\n ' + arvore[0].to_string()
+
+            raizes += '\n'
+
+            for arvore in oParcer.arvores:
+                raizes += '\n Apartir do index ' + str(arvore[0].index) + ': '
+                raizes += ''.join(arvore[1])
+
+            printFinal.append(raizes)
 
         #printFinal.append(oParcer.status_aceitacao)
 
@@ -575,7 +492,11 @@ def combinacoes(fileName, tamanho):
 
 
 def debug():
-    fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Earley-JM.txt'
+    fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Gramaticas\\Earley-JM.txt'
+    palavra = ('astronomers saw stars with ears')
+    print(earlyParser(fileName, palavra))
+
+
 
     with open(fileName) as f:
         lines = f.read()
@@ -588,10 +509,17 @@ def debug():
         #resultado = oParcer.verifica_palavra(('int',))
 
 
-
-
         resultado = oParcer.verifica_palavra(('astronomers', 'saw', 'stars', 'with', 'ears'))
+
         print(oParcer.to_str())
+
+        for raiz in oParcer.arvores:
+
+            oParcer.gera_arvore_derivacao(raiz.index)
+            print(''.join((oParcer.arvore)))
+
+
+
         resultado = oParcer.verifica_palavra(('(', 'int', '+', 'int', ')'))
         # resultado = oParcer.verifica_palavra(('int',))
         #
