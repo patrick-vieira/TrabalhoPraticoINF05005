@@ -356,6 +356,8 @@ class EarleyParser:
         if tamanho_entrada > 0:
             self.reconhecer_palavras_ate_tamanho = tamanho_entrada
 
+        lista_palavra_arvores = []
+
         for tamanho_palavra in range(1, self.reconhecer_palavras_ate_tamanho):
 
             for combinacao in itertools.product(self.gramatica.terminals, repeat=tamanho_palavra):
@@ -370,8 +372,8 @@ class EarleyParser:
                 resultado = self.verifica_palavra(palavra_teste)
 
                 if resultado:
-
-                    self.palavras_reconhecidas.append(combinacao)
+                    lista_palavra_arvores = [combinacao, self.arvores]
+                    self.palavras_reconhecidas.append(lista_palavra_arvores)
 
         return self.palavras_reconhecidas
 
@@ -566,9 +568,8 @@ def combinacoes(fileName, tamanho):
 
 def debug():
     fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Gramaticas\\Earley-JM.txt'
-    palavra = ('astronomers saw stars with ears')
-    print(earlyParser(fileName, palavra))
-
+    #palavra = ('astronomers saw stars with ears')
+    #print(earlyParser(fileName, palavra))
 
 
     with open(fileName) as f:
@@ -579,41 +580,15 @@ def debug():
 
         oParcer = EarleyParser(grammar)
 
-        #resultado = oParcer.verifica_palavra(('int',))
 
+        #resultado = oParcer.verifica_palavra(('astronomers', 'saw', 'stars', 'with', 'ears'))
 
-        resultado = oParcer.verifica_palavra(('astronomers', 'saw', 'stars', 'with', 'ears'))
-
-        print(oParcer.to_str())
-
-        for raiz in oParcer.arvores:
-
-            oParcer.gera_arvore_derivacao(raiz.index)
-            print(''.join((oParcer.arvore)))
-
-
-
-        resultado = oParcer.verifica_palavra(('(', 'int', '+', 'int', ')'))
-        # resultado = oParcer.verifica_palavra(('int',))
-        #
-        # oParcer.gera_arvore_derivacao(('(', 'int', ')'))
-        # oParcer.gera_arvore_derivacao(('int', '+', 'int'))
-        resultado = oParcer.gera_arvore_derivacao(('int', '+', 'int', '+', 'int'))
-        resultado = oParcer.gera_arvore_derivacao(('int', '+', '(', 'int', ')'))
-
-        resultado = oParcer.gera_arvore_derivacao(('int', 'int', '+', 'int', '+', 'int'))
-        resultado = oParcer.gera_arvore_derivacao(('(', '+', 'int', '+', 'int', ')', '+', 'int'))
-        resultado = oParcer.gera_arvore_derivacao(('(', 'int', '+', 'int', ')', '+', 'int'))
-        resultado = oParcer.gera_arvore_derivacao(('(', 'int', '+', 'int', ')', '*', 'int'))
-
-        print(oParcer.to_str())
-
-        print(oParcer.status_aceitacao)
         reconhecer_palavras_ate = 7
+
         oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
 
         print("As palavras reconhecidas pela gramatica com tamanho até " + str(
             reconhecer_palavras_ate) + " são::\n" + str(oParcer.palavras_reconhecidas))
 
 
-#debug()
+debug()
