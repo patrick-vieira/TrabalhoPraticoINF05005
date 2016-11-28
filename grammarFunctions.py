@@ -15,7 +15,7 @@ def simplifyAndChomsky(fileName):
         printFinal.append('Gramática extraída do arquivo ' + fileName)
         printFinal.append(str(grammar))
 
-        gramatica_simplificada = grammar.simplificar()
+        gramatica_simplificada = grammar.simplificacao_prod_vazias()
         printFinal.append("(1) Exclusão de Produções Vazias")
         printFinal.append("\n" + str(gramatica_simplificada))
 

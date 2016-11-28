@@ -42,8 +42,8 @@ while exit_prog != 1:
                         while outra_palavra:
 
                             palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
-
-                            textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra2))
+                            if palavra2:
+                                textbox("Early Parser", title, grammarEarleyParser.earlyParser(fileName, palavra2))
 
                             choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title,
                                                ["Outra palavra", "Voltar"])
@@ -60,8 +60,8 @@ while exit_prog != 1:
                         while outro_tamanho:
 
                             tamanho = enterbox('Insira o tamanho maximo das palavras:', title)
-
-                            textbox("Palavras aceitas pela gramática:", title, grammarEarleyParser.combinacoes(fileName, tamanho))
+                            if tamanho:
+                                textbox("Palavras aceitas pela gramática:", title, grammarEarleyParser.combinacoes(fileName, tamanho))
 
                             choice = buttonbox("Deseja testar outros tamanhos nesta mesma gramática?", title,
                                                ["Outro tamanho", "Voltar"])
@@ -102,15 +102,52 @@ while exit_prog != 1:
                         gram.simplifyAndChomsky(localFile))
                 choice = 'Voltar'
 
+
             elif choice == 'Early Parser':
-                outra_palavra = 1
-                while outra_palavra:
-                    palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
-                    textbox("Early Parser", title, grammarEarleyParser.earlyParser(localFile, palavra2))
-                    choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title, ["Outra palavra", "Voltar"])
-                    if choice != "Outra palavra":
-                        choice = 'Voltar'
-                        outra_palavra = 0
+
+                op = buttonbox("Escolha uma opção:", title, ["Verificar palavra", "Palavras aceitas até tamanho dado"])
+
+                if op == "Verificar palavra":
+
+                    outra_palavra = 1
+
+                    while outra_palavra:
+
+                        palavra2 = enterbox('Insira uma palavra para reconhecimento:', title)
+
+                        if palavra2:
+                            textbox("Early Parser", title, grammarEarleyParser.earlyParser(localFile, palavra2))
+
+                        choice = buttonbox("Deseja testar outras palavras nesta mesma gramática?", title,
+
+                                           ["Outra palavra", "Voltar"])
+
+                        if choice != "Outra palavra":
+                            choice = 'Voltar'
+
+                            outra_palavra = 0
+
+
+                elif op == "Palavras aceitas até tamanho dado":
+
+                    outro_tamanho = 1
+
+                    while outro_tamanho:
+
+                        tamanho = enterbox('Insira o tamanho maximo das palavras:', title)
+
+                        if tamanho:
+                            textbox("Palavras aceitas pela gramática:", title,
+                                    grammarEarleyParser.combinacoes(localFile, tamanho))
+
+                        choice = buttonbox("Deseja testar outros tamanhos nesta mesma gramática?", title,
+
+                                           ["Outro tamanho", "Voltar"])
+
+                        if choice != "Outro tamanho":
+                            choice = 'Voltar'
+
+                            outro_tamanho = 0
 
 
             elif choice == 'Editar':

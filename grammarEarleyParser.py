@@ -28,7 +28,7 @@ class struct_elemento_tabela:
 
 class EarleyParser:
     def __init__(self, gramatica: object) -> object:
-        self.gramatica = copy.deepcopy(gramatica)  # faz uma copia fisica da gramatica, previne erro caso a gramatica seja alterada
+        self.gramatica = copy.deepcopy(gramatica.to_chomsky())  # faz uma copia fisica da gramatica, previne erro caso a gramatica seja alterada
         self.palavra = ''
         self.palavra_reconhecida = False
         self.palavras_reconhecidas = []
@@ -237,6 +237,7 @@ class EarleyParser:
                 elemento_Dn.posicao.append(indice_Dn + 1)
 
                 elemento_Dn.back_pointer = []
+                #elemento_Dn.back_pointer.append(elemento.index)
 
                 elemento_Dn.operacao = 'Scan'
 
@@ -337,6 +338,9 @@ class EarleyParser:
 
             for elemento in producoes_D_ultimo: #para cada elemento da ultima lista
 
+                if elemento.variavel != ''.join(self.gramatica.initial_var):
+                    continue
+
                 if elemento.posicao == [0, len(self.palavra)] and elemento.producao[-1] == self.simbolo_marcador:  #verifica se foi criado em 0 e terminou em Dn
                     self.arvores.append([elemento, self.gera_arvore_derivacao(elemento.index, [])])
                     str_mensagem += "\n" + elemento.to_string()
@@ -386,15 +390,26 @@ class EarleyParser:
 
         elemento = self.get_elemento_da_lista(indice_raiz)
 
+        if len(elemento.back_pointer) == 0:   ###palavra foi aceita no ultimo scan, n tem backtrack
+            pass
+
+        else:
+            return self.gera_arvore_derivacao_recursao(indice_raiz, arvore)
+
+
+    def gera_arvore_derivacao_recursao(self, indice_raiz, arvore=[]):
+
+        elemento = self.get_elemento_da_lista(indice_raiz)
+
         arvore.append('[')
 
         arvore.append(elemento.variavel)
 
         for indice_back_pointer in elemento.back_pointer:
-            self.gera_arvore_derivacao(indice_back_pointer, arvore)
+            self.gera_arvore_derivacao_recursao(indice_back_pointer, arvore)
 
         if len(elemento.back_pointer) == 0:
-            arvore.append(' ' + elemento.producao[0])
+            arvore.append(' ' + elemento.producao[-2])
 
         arvore.append(']')
 
@@ -419,6 +434,64 @@ class EarleyParser:
 
 
 def earlyParser(fileName, stringPalavra):
+    printFinal = []
+    palavra = re.split(r" ", stringPalavra)
+    print(palavra)
+
+    with open(fileName) as f:
+        lines = f.read()
+
+    if lines:
+        grammar = grammarClass.Grammar(lines)
+        printFinal.append('Gramática extraída do arquivo ' + fileName)
+        printFinal.append(str(grammar))
+
+        oParcer = EarleyParser(grammar)
+
+        resultado = oParcer.verifica_palavra(palavra)
+
+        printFinal.append('Palavra de entrada: ' + ' '.join(palavra))
+
+        if resultado == True:
+
+            raizes = 'Arvore apartir do(s) elemento(s):'
+
+            print(oParcer.arvores)
+
+            for arvore in oParcer.arvores:
+                raizes += '\n ' + arvore[0].to_string()
+
+            raizes += '\n'
+
+            for arvore in oParcer.arvores:
+                raizes += '\n Apartir do index ' + str(arvore[0].index) + ': '
+                raizes += ''.join(arvore[1])
+                nova_string = ''.join(arvore[1])
+
+                nova_string.replace('+', 'MAIS')
+                nova_string.replace('-', 'MENOS')
+                nova_string.replace(',', 'VIRGULA')
+                nova_string.replace('.', 'PONTO_FINAL')
+                nova_string.replace('?', 'INTERROGACAO')
+                nova_string.replace('!', 'EXCLAMACAO')
+                nova_string.replace(':', 'DOIS_PONTOS')
+                nova_string.replace('*', 'MULTIPLICACAO')
+                nova_string.replace('/', 'DIVISAO')
+
+                raizes += '\nLink para visualizar a árvore: ' + '\n\thttp://mshang.ca/syntree/?i=' + nova_string + '\n'
+
+            printFinal.append(raizes)
+
+
+        #printFinal.append(oParcer.status_aceitacao)
+
+        printFinal.append(oParcer.to_str())
+
+        printFinal.append(str(resultado))
+
+    return '\n----------------------------------------------------------------------\n'.join(printFinal)
+
+def earlyParserss(fileName, stringPalavra):
     printFinal = []
     palavra = re.split(r" ", stringPalavra)
     print(palavra)

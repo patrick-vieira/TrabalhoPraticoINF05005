@@ -13,7 +13,7 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
         self.useless_symbol = {}  # dicionario com os simbolos inuteis
         self.accepts_empty = 0
         self.has_empty = 0
-        self.is_simplificada = 0
+        self.is_simplificada = False
         self.is_fnc = 0
 
         self.read_grammar(linhas)
@@ -214,9 +214,16 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
 
     def to_chomsky(self):
         temp = copy.deepcopy(self)
+
+        if not temp.is_simplificada:
+            temp.simplificar()
+
         temp.chomsky_stp1_separacao()
+
         temp.chomsky_stp2_novas_variaveis()
-        self.is_fnc = 1
+
+        self.is_fnc = True
+
         return temp
 
     def simplificar(self):
@@ -224,5 +231,16 @@ class Grammar:  # Grammar: salva variaveis, terminais e regras
         temp.simplificacao_stp1_prod_vazias()
         temp.simplificacao_stp2_prod_vazias()
         temp.simplificacao_stp3_prod_vazias()
-        self.is_simplificada = 1
+        temp.simplificacao_stp4_exclusao_prod_simples()
+        temp.simplificacao_stp5_exclusao_prod_inuteis()
+        self.is_simplificada = True
+        return temp
+
+
+    def simplificacao_prod_vazias(self):
+        temp = copy.deepcopy(self)
+        temp.simplificacao_stp1_prod_vazias()
+        temp.simplificacao_stp2_prod_vazias()
+        temp.simplificacao_stp3_prod_vazias()
+        self.is_simplificada = True
         return temp
