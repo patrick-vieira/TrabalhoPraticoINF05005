@@ -36,7 +36,6 @@ class EarleyParser:
         self.simbolo_marcador = 'º'
         self.conjunto_de_producoes_Dn = []
         self.arvores = []
-        self.arvore = []
         self.contador = 0
 
     def to_str(self):
@@ -64,6 +63,8 @@ class EarleyParser:
         self.palavra_reconhecida = False
 
         self.conjunto_de_producoes_Dn = []
+
+        self.arvores = []
 
         self.predict_inicial()
 
@@ -356,7 +357,7 @@ class EarleyParser:
         if tamanho_entrada > 0:
             self.reconhecer_palavras_ate_tamanho = tamanho_entrada
 
-        lista_palavra_arvores = []
+        self.palavras_reconhecidas = []
 
         for tamanho_palavra in range(1, self.reconhecer_palavras_ate_tamanho):
 
@@ -417,22 +418,6 @@ class EarleyParser:
 
         return arvore
 
-    def gera_arvore_derivacao_oo(self, indice_raiz):
-
-        elemento = self.get_elemento_da_lista(indice_raiz)
-
-        self.arvore.append('[')
-
-        self.arvore.append(elemento.variavel)
-
-        for indice_back_pointer in elemento.back_pointer:
-            self.gera_arvore_derivacao(indice_back_pointer)
-
-        if len(elemento.back_pointer) == 0:
-            self.arvore.append(' ' + elemento.producao[0])
-
-
-        self.arvore.append(']')
 
 
 def earlyParser(fileName, stringPalavra):
@@ -567,7 +552,9 @@ def combinacoes(fileName, tamanho):
 
 
 def debug():
-    fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Gramaticas\\Earley-JM.txt'
+    #fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Gramaticas\\Earley-JM.txt'
+    fileName = 'C:\\users\\vieir\\Documents\\GitHub\\TrabalhoPraticoINF05005\\Gramaticas\\Earley-Lista2-10-c.txt'
+
     #palavra = ('astronomers saw stars with ears')
     #print(earlyParser(fileName, palavra))
 
@@ -583,7 +570,7 @@ def debug():
 
         #resultado = oParcer.verifica_palavra(('astronomers', 'saw', 'stars', 'with', 'ears'))
 
-        reconhecer_palavras_ate = 7
+        reconhecer_palavras_ate = 5
 
         oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
 
