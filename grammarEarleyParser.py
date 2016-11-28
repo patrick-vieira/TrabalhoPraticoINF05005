@@ -29,6 +29,7 @@ class struct_elemento_tabela:
 class EarleyParser:
     def __init__(self, gramatica: object) -> object:
         self.gramatica = copy.deepcopy(gramatica.to_chomsky())  # faz uma copia fisica da gramatica, previne erro caso a gramatica seja alterada
+        #self.gramatica = copy.deepcopy(gramatica)
         self.palavra = ''
         self.palavra_reconhecida = False
         self.palavras_reconhecidas = []
@@ -77,7 +78,7 @@ class EarleyParser:
             rodar_mais = 5
             scan_resultado = self.scan(terminal, index)  # se conseguiu fazer scan no terminal
             if scan_resultado:
-                while adc_comp or adc_pred or rodar_mais > 0 and not self.palavra_reconhecida:  # executa predict e complete até que nem um deles tenha adicionado mais produções em Dn
+                while (adc_comp or adc_pred or rodar_mais > 0) and not self.palavra_reconhecida:  # executa predict e complete até que nem um deles tenha adicionado mais produções em Dn
 
                     adc_comp = self.complete()
 
@@ -98,7 +99,6 @@ class EarleyParser:
         self.contador += 1
 
         return ret
-
 
     def predict_inicial(self):
 
@@ -143,8 +143,10 @@ class EarleyParser:
         ###varre a lista de elementos de DN e verificar em cada um deles se já não existe essa produção
 
         for elemento in self.conjunto_de_producoes_Dn[index]:
-            if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao and elemento.back_pointer == back_pointer:
-                return False
+            if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao:# and elemento.back_pointer == back_pointer:
+                if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao and elemento.back_pointer == back_pointer:
+                    return False
+                print("\nesse cara o bag\n" + elemento.to_string())
         return True
 
     def predict(self, indice_Dn):
@@ -272,6 +274,8 @@ class EarleyParser:
 
                 if cont_avancos > 0:  # todo ta muito feia essa logica aqui, da pra melhorar
                     flag_producao_nova = True
+                    if len(producoes_DN) > 30:
+                        self.palavra_reconhecida = True
 
         return flag_producao_nova
 
@@ -419,7 +423,6 @@ class EarleyParser:
         return arvore
 
 
-
 def earlyParser(fileName, stringPalavra):
     printFinal = []
     palavra = re.split(r" ", stringPalavra)
@@ -431,9 +434,12 @@ def earlyParser(fileName, stringPalavra):
     if lines:
         grammar = grammarClass.Grammar(lines)
         printFinal.append('Gramática extraída do arquivo ' + fileName)
+
         printFinal.append(str(grammar))
 
         oParcer = EarleyParser(grammar)
+
+        printFinal.append(str(oParcer.gramatica))
 
         resultado = oParcer.verifica_palavra(palavra)
 
@@ -520,8 +526,59 @@ def earlyParserss(fileName, stringPalavra):
 
     return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
-
 def combinacoes(fileName, tamanho):
+    printFinal = []
+
+    with open(fileName) as f:
+        lines = f.read()
+
+    if lines:
+        grammar = grammarClass.Grammar(lines)
+        printFinal.append('Gramática extraída do arquivo ' + fileName)
+        printFinal.append(str(grammar))
+
+        oParcer = EarleyParser(grammar)
+
+        reconhecer_palavras_ate = int(tamanho) + 1
+
+        CHURROS = oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
+
+        printFinal.append('Até tamanho: ' + tamanho)
+
+        resultado = []
+
+        for item in CHURROS:
+            resultado.append("Palavra: " + ' '.join(item[0]))
+            count = 0
+            resultado.append("Árvore(s) de derivação: ")
+
+            for arvore in item[1]:
+
+                    nova_string = ''.join(arvore[1])
+
+                    resultado.append(nova_string)
+
+                    nova_string = nova_string.replace('+', 'MAIS')
+                    nova_string = nova_string.replace('-', 'MENOS')
+                    nova_string = nova_string.replace(',', 'VIRGULA')
+                    nova_string = nova_string.replace('.', 'PONTO_FINAL')
+                    nova_string = nova_string.replace('?', 'INTERROGACAO')
+                    nova_string = nova_string.replace('!', 'EXCLAMACAO')
+                    nova_string = nova_string.replace(':', 'DOIS_PONTOS')
+                    nova_string = nova_string.replace('*', 'MULTIPLICACAO')
+                    nova_string = nova_string.replace('/', 'DIVISAO')
+
+
+                    resultado.append('\nLink para visualizar a árvore: ' + '\n\thttp://mshang.ca/syntree/?i=' + nova_string + '\n')
+
+
+
+        printFinal.append(str('\n'.join(resultado)))
+
+    return '\n----------------------------------------------------------------------\n'.join(printFinal)
+
+
+def combinacoes000(fileName, tamanho):
     printFinal = []
 
     with open(fileName) as f:
@@ -542,9 +599,11 @@ def combinacoes(fileName, tamanho):
 
         resultado = []
 
-        for item in oParcer.palavras_reconhecidas:
-            if ''.join(item) not in resultado:
-                resultado.append(''.join(item))
+        for resultado_combinacao in oParcer.palavras_reconhecidas:
+            resultado.append('\n' + str(resultado_combinacao[0]))
+            for arvore in resultado_combinacao[1]:
+                resultado.append('\n' + ''.join(arvore[1]))
+
 
         printFinal.append(str('\n'.join(resultado)))
 
@@ -572,7 +631,13 @@ def debug():
 
         reconhecer_palavras_ate = 5
 
-        oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
+        resultado_combinacoes = oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
+
+        for resultado_combinacao in resultado_combinacoes:
+            print(resultado_combinacao[0])
+            for arvore in resultado_combinacao[1]:
+                print(''.join(arvore[1]))
+
 
         print("As palavras reconhecidas pela gramatica com tamanho até " + str(
             reconhecer_palavras_ate) + " são::\n" + str(oParcer.palavras_reconhecidas))
