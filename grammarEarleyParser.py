@@ -468,15 +468,15 @@ def earlyParser(fileName, stringPalavra):
                 raizes += ''.join(arvore[1])
                 nova_string = ''.join(arvore[1])
 
-                nova_string.replace('+', 'MAIS')
-                nova_string.replace('-', 'MENOS')
-                nova_string.replace(',', 'VIRGULA')
-                nova_string.replace('.', 'PONTO_FINAL')
-                nova_string.replace('?', 'INTERROGACAO')
-                nova_string.replace('!', 'EXCLAMACAO')
-                nova_string.replace(':', 'DOIS_PONTOS')
-                nova_string.replace('*', 'MULTIPLICACAO')
-                nova_string.replace('/', 'DIVISAO')
+                nova_string = nova_string.replace('+', 'MAIS')
+                nova_string = nova_string.replace('-', 'MENOS')
+                nova_string = nova_string.replace(',', 'VIRGULA')
+                nova_string = nova_string.replace('.', 'PONTO_FINAL')
+                nova_string = nova_string.replace('?', 'INTERROGACAO')
+                nova_string = nova_string.replace('!', 'EXCLAMACAO')
+                nova_string = nova_string.replace(':', 'DOIS_PONTOS')
+                nova_string = nova_string.replace('*', 'MULTIPLICACAO')
+                nova_string = nova_string.replace('/', 'DIVISAO')
 
                 raizes += '\nLink para visualizar a árvore: ' + '\n\thttp://mshang.ca/syntree/?i=' + nova_string + '\n'
 
