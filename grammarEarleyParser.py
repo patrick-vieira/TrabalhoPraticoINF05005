@@ -578,4 +578,4 @@ def debug():
             reconhecer_palavras_ate) + " são::\n" + str(oParcer.palavras_reconhecidas))
 
 
-debug()
+#debug()
