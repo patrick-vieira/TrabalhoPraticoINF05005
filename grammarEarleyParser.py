@@ -143,10 +143,10 @@ class EarleyParser:
         ###varre a lista de elementos de DN e verificar em cada um deles se já não existe essa produção
 
         for elemento in self.conjunto_de_producoes_Dn[index]:
-            if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao:# and elemento.back_pointer == back_pointer:
-                if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao and elemento.back_pointer == back_pointer:
-                    return False
-                print("\nesse cara o bag\n" + elemento.to_string())
+            if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao and elemento.back_pointer == back_pointer:
+                #if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao and elemento.back_pointer == back_pointer:
+                return False
+                #print("\nesse cara o bag\n" + elemento.to_string())
         return True
 
     def predict(self, indice_Dn):
@@ -274,7 +274,7 @@ class EarleyParser:
 
                 if cont_avancos > 0:  # todo ta muito feia essa logica aqui, da pra melhorar
                     flag_producao_nova = True
-                    if len(producoes_DN) > 30:
+                    if len(producoes_DN) > 100:
                         self.palavra_reconhecida = True
 
         return flag_producao_nova
@@ -424,8 +424,11 @@ class EarleyParser:
 
 
 def earlyParser(fileName, stringPalavra):
+
     printFinal = []
-    palavra = re.split(r" ", stringPalavra)
+
+    palavra = re.split(r",", stringPalavra)
+
     print(palavra)
 
     with open(fileName) as f:
@@ -435,9 +438,13 @@ def earlyParser(fileName, stringPalavra):
         grammar = grammarClass.Grammar(lines)
         printFinal.append('Gramática extraída do arquivo ' + fileName)
 
+        printFinal.append('Gramática riginal:')
+
         printFinal.append(str(grammar))
 
         oParcer = EarleyParser(grammar)
+
+        printFinal.append('Gramática na FNC:')
 
         printFinal.append(str(oParcer.gramatica))
 
@@ -475,9 +482,6 @@ def earlyParser(fileName, stringPalavra):
 
             printFinal.append(raizes)
 
-
-        #printFinal.append(oParcer.status_aceitacao)
-
         printFinal.append(oParcer.to_str())
 
         printFinal.append(str(resultado))
@@ -486,7 +490,7 @@ def earlyParser(fileName, stringPalavra):
 
 def earlyParserss(fileName, stringPalavra):
     printFinal = []
-    palavra = re.split(r" ", stringPalavra)
+    palavra = re.split(r",", stringPalavra)
     print(palavra)
 
     with open(fileName) as f:
@@ -494,8 +498,14 @@ def earlyParserss(fileName, stringPalavra):
 
     if lines:
         grammar = grammarClass.Grammar(lines)
+
         printFinal.append('Gramática extraída do arquivo ' + fileName)
+
+        printFinal.append('Gramática riginal:')
+
         printFinal.append(str(grammar))
+
+        printFinal.append('Gramática na FNC:')
 
         oParcer = EarleyParser(grammar)
 
@@ -535,6 +545,7 @@ def combinacoes(fileName, tamanho):
     if lines:
         grammar = grammarClass.Grammar(lines)
         printFinal.append('Gramática extraída do arquivo ' + fileName)
+
         printFinal.append(str(grammar))
 
         oParcer = EarleyParser(grammar)
@@ -577,37 +588,6 @@ def combinacoes(fileName, tamanho):
 
     return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
-
-def combinacoes000(fileName, tamanho):
-    printFinal = []
-
-    with open(fileName) as f:
-        lines = f.read()
-
-    if lines:
-        grammar = grammarClass.Grammar(lines)
-        printFinal.append('Gramática extraída do arquivo ' + fileName)
-        printFinal.append(str(grammar))
-
-        oParcer = EarleyParser(grammar)
-
-        reconhecer_palavras_ate = int(tamanho) + 1
-
-        oParcer.combinacoes_palavras_possiveis(reconhecer_palavras_ate)
-
-        printFinal.append('Até tamanho: ' + tamanho)
-
-        resultado = []
-
-        for resultado_combinacao in oParcer.palavras_reconhecidas:
-            resultado.append('\n' + str(resultado_combinacao[0]))
-            for arvore in resultado_combinacao[1]:
-                resultado.append('\n' + ''.join(arvore[1]))
-
-
-        printFinal.append(str('\n'.join(resultado)))
-
-    return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
 
 def debug():
