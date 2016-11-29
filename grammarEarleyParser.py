@@ -39,6 +39,8 @@ class EarleyParser:
         self.arvores = []
         self.contador = 0
 
+
+
     def to_str(self):
 
         string_retorno = ''
@@ -143,7 +145,7 @@ class EarleyParser:
         ###varre a lista de elementos de DN e verificar em cada um deles se já não existe essa produção
 
         for elemento in self.conjunto_de_producoes_Dn[index]:
-            if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao and elemento.back_pointer == back_pointer:
+            if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao:# and elemento.back_pointer == back_pointer:
                 #if elemento.variavel == variavel and elemento.producao == producao and elemento.posicao == posicao and elemento.back_pointer == back_pointer:
                 return False
                 #print("\nesse cara o bag\n" + elemento.to_string())
@@ -274,7 +276,7 @@ class EarleyParser:
 
                 if cont_avancos > 0:  # todo ta muito feia essa logica aqui, da pra melhorar
                     flag_producao_nova = True
-                    if len(producoes_DN) > 100:
+                    if len(producoes_DN) > 1000:
                         self.palavra_reconhecida = True
 
         return flag_producao_nova
@@ -488,54 +490,6 @@ def earlyParser(fileName, stringPalavra):
 
     return '\n----------------------------------------------------------------------\n'.join(printFinal)
 
-def earlyParserss(fileName, stringPalavra):
-    printFinal = []
-    palavra = re.split(r",", stringPalavra)
-    print(palavra)
-
-    with open(fileName) as f:
-        lines = f.read()
-
-    if lines:
-        grammar = grammarClass.Grammar(lines)
-
-        printFinal.append('Gramática extraída do arquivo ' + fileName)
-
-        printFinal.append('Gramática riginal:')
-
-        printFinal.append(str(grammar))
-
-        printFinal.append('Gramática na FNC:')
-
-        oParcer = EarleyParser(grammar)
-
-        resultado = oParcer.verifica_palavra(palavra)
-
-        printFinal.append('Palavra de entrada: ' + ' '.join(palavra))
-
-        if resultado == True:
-
-            raizes = 'Arvore apartir do(s) elemento(s):'
-
-            for arvore in oParcer.arvores:
-                raizes += '\n ' + arvore[0].to_string()
-
-            raizes += '\n'
-
-            for arvore in oParcer.arvores:
-                raizes += '\n Apartir do index ' + str(arvore[0].index) + ': '
-                raizes += ''.join(arvore[1])
-
-            printFinal.append(raizes)
-
-        #printFinal.append(oParcer.status_aceitacao)
-
-        printFinal.append(oParcer.to_str())
-
-        printFinal.append(str(resultado))
-
-    return '\n----------------------------------------------------------------------\n'.join(printFinal)
-
 def combinacoes(fileName, tamanho):
     printFinal = []
 
@@ -559,7 +513,7 @@ def combinacoes(fileName, tamanho):
         resultado = []
 
         for item in CHURROS:
-            resultado.append("Palavra: " + ' '.join(item[0]))
+            resultado.append("Palavra: " + ','.join(item[0]))
             count = 0
             resultado.append("Árvore(s) de derivação: ")
 
